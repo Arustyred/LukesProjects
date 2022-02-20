@@ -1,6 +1,8 @@
 Luke's Hockey is an html program that I wrote in high school as a side project. The game involves two human controlled players
 and two computer controlled goalies. The goal is to score more goals than your opponent during the game.
 
+To play, download the html file and open it using chrome or another web browser
+
 Mechanics:
 
 Before the game starts, each team can choose their name and color
