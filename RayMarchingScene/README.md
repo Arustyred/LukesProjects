@@ -6,3 +6,6 @@ collisions withing a certain distance. This distance is determined by a "distanc
 any direction can move without colliding with any objects. The ray is shot again in the same direction from the new position using the distance function again
 and the process is repeated until the distance function returns a value less than a defined epsilon value. At this point, the ray has essentially collided with
 an object and the color for that pixel can then be determined.
+
+This program produces a scene that looks like the following image.
+![Scene](/Images/scene.png)
