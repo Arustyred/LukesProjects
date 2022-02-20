@@ -1,0 +1,5820 @@
+
+<html>
+<head>
+<title>luk's hockey</title>
+	
+<a href="index.html"> go back </a>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+
+<script type="text/javascript" src="https://static.codehs.com/gulp/26d66975f8033d706c03933209c633cc0736d9ae/chs-js-lib/chs.js"></script>
+
+
+<style>
+canvas {
+    border: 1px solid black;
+    display: inline-block;
+    vertical-align: top;
+}
+
+</style>
+
+</head>
+
+<body>
+<h1>Game2</h1>
+
+
+
+<canvas
+width="400"
+height="500"
+class="codehs-editor-canvas"></canvas>
+
+<script>
+window.onload = function() {
+
+    setSize(1000, 800);  //1000 800 default
+
+var height = 800;
+var width = 1000;
+var arenaTop = 150;
+var arenaBottom = 650;
+var arenaX = 0;
+var arenaY = 150;
+var arenaCenterX = 500;
+var arenaCenterY = 400;
+
+var editingTourney = false;
+var tourney = false;
+var menu = true;
+var game = false;
+var pause = false;
+
+var resetTheGame = false;
+var alreadyDrewArena = false;
+var arenaStuff = [];
+
+var frame = 0;
+var mouseX = 0;
+var mouseY = 0;
+
+var startWithDebug = false;
+var testingCollisions = false;
+
+var clickElement;
+var colors = ["#373a31", "#696969", "#228B22", Color.GREEN, "#a6ed02", "#000080", "	#23338a", "#2b4bff", "#00adf2", "#70aed8", "#B22222", "#FF0000", "#ff8c00", "#ffb003", "#e5e500", "#442247", "#7D3C98", "#bf8bff", "#F007E5", "#FF69B4"];
+var buttonColor = "#950740";
+var textColor = "#C3073F";
+var textColorTwo = "#6F2232";
+var textColorThree = "#606066";
+var white = Color.WHITE;
+/***********
+
+Menu Objects
+
+***********/
+
+var background;
+var title;
+var quickGame;
+var sayQuickGame;
+var tournament;
+var sayTournament;
+var controls;
+var sayControls;
+
+var teamOneNameRectangle;
+var teamOneSizeRectangle;
+var teamOneColorRectangle;
+var teamOneText;
+var teamOneNameMenuText;
+var teamOneNameSizeText;
+
+var teamTwoNameRectangle;
+var teamTwoSizeRectangle;
+var teamTwoColorRectangle;
+var teamTwoText;
+var teamTwoNameMenuText;
+var teamTwoNameSizeText;
+
+var keyW;
+var keyA;
+var keyS;
+var keyD;
+
+var keyUp;
+var keyDown;
+var keyLeft;
+var keyRight;
+
+var bottomBar;
+var textHiderOne;
+var textHiderTwo;
+
+/***********
+
+Tournaments Stuff
+
+***********/
+
+var tournamentData = "";
+var tournamentTeamNames = [];
+var tournamentTeamSizes = [];
+var tournamentTeamColors = [];
+
+var tourneyColorsSelected = [];
+var tourneyNamesSelected = [];
+
+var gamePlaying = 0; //index of game currently playing
+var lastGameWinner = 0;
+
+var teamsInTournament = 16;
+var gamesPlayedThisRound = 0;
+var round = 1;
+
+
+/***********
+
+Team Info
+
+***********/
+
+var teamOneName = "Team One";
+var teamTwoName = "Team Two";
+var teamOneColor = 0;
+var teamTwoColor = colors.length - 1;
+var teamOneBox;
+var teamTwoBox;
+var teamOneScoreText;
+var teamTwoScoreText;
+var teamOneScore = 0;
+var teamTwoScore = 0;
+var teamOneShots = 0;
+var teamTwoShots = 0;
+var teamOneSaves = 0;
+var teamTwoSaves = 0;
+var teamOneHits = 0;
+var teamTwoHits = 0;
+var teamOneFaceoffs = 0;
+var teamTwoFaceoffs = 0;
+var teamOnePossession = 0;
+var teamTwoPossession = 0;
+var teamOneSize = 2;
+var teamTwoSize = 2;
+var aPosts = 0;
+var bPosts = 0;
+
+var periodText;
+var timeText;
+
+/***********
+
+Game Stuff
+
+***********/
+
+var period = 1;
+var periodString = "1st";
+var timePerPeriod = 60;
+
+var gameOver = false;
+var winner = 0;
+
+var changeTimeButton;
+var changeTimeText;
+
+var timePerPeriodI = 2;
+var potentialTimePerPeriod = [20, 45, 60, 90, 120];
+
+var changeHittingForceButton;
+var changeHittingForceText;
+
+var collisionForce = 1;
+var collisionForceI = 3;
+var potentialCollisionForce = [0.2, 0.5, 0.8, 1, 1.2, 1.5, 2, 2.5, 5, 10];
+
+var clockFrameCount = 0;
+var mins = 20;
+var seconds = 0;
+
+var playersCanMove = false;
+var startTimer = true;
+var keepDoingTimer = false;
+var dropPuck = false;
+var preFaceoffTimerOver = false;
+var timerStartFrame = 0;
+var faceoffTimer = 0;
+var faceoffX;
+var faceoffY;
+
+var doFaceoff = false;
+var inPlay = false;
+
+var teamOneScored = false;
+var teamTwoScored = false;
+var goalTimer = 0;
+
+var messageInt = 0;
+var lastMessageDisplayed = 0;
+var firstCharacter = 0;
+var lastCharacter = 0;
+var messagesTimerI = 0;
+var messageToDisplay = "";
+
+var potentialMessages = [];
+var newMessage = false;
+var messageTxtRef = new Text("", "20pt Verdana");
+var messageTxt = new Text("", "20pt Verdana");
+messageTxt.setColor(Color.YELLOW);
+
+/***********
+
+Intermission
+
+***********/
+
+var intText;
+var intBar;
+var intOffset = width;
+var endOfPeriod = false;
+var endOfPeriodTimer = 0;
+var intermissionMessage = 0;
+var snowBuildup = [];
+var snowVelX = [];
+var snowVelY = [];
+var snowLife = [];
+var snowLifetime = 850;
+var iRan = 0;
+
+var iThings = [];
+var intermissionBackground;
+var iMan;
+var iManTalk;
+var iTextBox;
+var iText;
+var iTextTwo;
+var iStatsBox;
+var iTeamOneText;
+var iTeamTwoText;
+var iTeamOneScore;
+var iTeamTwoScore;
+var iTeamOneShots;
+var iTeamTwoShots;
+var iTeamOneSaves;
+var iTeamTwoSaves;
+var iTeamOneHits;
+var iTeamTwoHits;
+var iTeamOnePosts;
+var iTeamTwoPosts;
+var iTeamOneFaceoffs;
+var iTeamTwoFaceoffs;
+var iTeamOnePossession;
+var iTeamTwoPossession;
+var iShots;
+var iSaves;
+var iHits;
+var iPosts;
+var iFaceoffs;
+var iPossession;
+var skipText;
+
+var checkForFaceoffWin = true;
+var skippingIntermission = false;
+var mouthOpen = false;
+var nextMouthFrame = 0;
+
+
+/***********
+
+Players
+
+***********/
+
+var playerOne;
+var playerTwo;
+
+var ax = 0;    //current velocities
+var ay = 0;
+var bx = 0;
+var by = 0;
+var aax = 0;    //temporary velocities
+var aay = 0;
+var bbx = 0;
+var bby = 0;
+var aTarX = 0;   //target velocities
+var aTarY = 0;
+var bTarX = 0;
+var bTarY = 0;
+var aLastTarX = 0;   //last target velocities
+var aLastTarY = 0;
+var bLastTarX = 0;
+var bLastTarY = 0;
+var apx;    //player positions
+var apy;
+var bpx;
+var bpy;
+var aSlowingX = 0;    //massive slow down
+var aSlowingY = 0;
+var bSlowingX = 0;
+var bSlowingY = 0;
+var aRad;    //player Radii
+var bRad;
+var ae;    //player collision elements
+var be;
+
+var bumped = false;
+var aPuck = false;
+var bPuck = false;
+var aCanHave = true;
+var bCanHave = true;
+var aCanHaveFrame = 0;
+var bCanHaveFrame = 0;
+
+var accelerations = [0.3, 0.5, 0.8, 1, 1.2, 1.5, 2, 5];
+var acceleration = 1;
+var accelerationI = 3;
+var speedDenominator = 30;
+var aSpeed = speedDenominator;
+var bSpeed = speedDenominator;
+var aHitting = 4;
+var bHitting = 4;
+var sizeHittingBenefit = 1.65;
+
+var aShotPuck = false;
+var bShotPuck = false;
+var aShotPuckFrame = -40;
+var bShotPuckFrame = -40;
+
+var aChargeRect = new Rectangle(1, 1);
+var bChargeRect = new Rectangle(1, 1);
+
+/***********
+
+Goalies
+
+***********/
+
+var goalieOne;
+var goalieTwo;
+
+var agix; //goalie initial position
+var bgix;
+
+var agpx; //goalie positions
+var agpy;
+var bgpx;
+var bgpy;
+
+var agtx = 0; //goalie positions
+var agty = 0;
+var bgtx = 0;
+var bgty = 0;
+
+var agx = 0; //goalie velocities
+var agy = 0;
+var bgx = 0;
+var bgy = 0;
+
+var agTarX = 0; //goalie target velocities
+var agTarY = 0;
+var bgTarX = 0;
+var bgTarY = 0;
+
+var puckCloseToGoalieA = false;
+var puckCloseToGoalieB = false;
+var goalieAsave = false;
+var goalieBsave = false;
+var goalieASaveAttemptFrame = 0;
+var goalieBSaveAttemptFrame = 0;
+
+var goalieAoops = -45;
+var goalieBoops = -45;
+var goalieAoopsText = new Text("Whoops!", "13pt Verdana");
+var goalieBoopsText = new Text("Whoops!", "13pt Verdana");
+var goalieWords = ["whoops!", "oops!", "$#!t!", "uh...", "oop!", "ahem", "golly", "huh?", "jeepers!", "oh dear"];
+
+var ran = 0;
+
+var goalieALastPush = 0;
+var goalieBLastPush = 0;
+
+/***********
+
+Fans
+
+***********/
+
+var DEFAULT_FAN_EXCITEMENT = 0.85;
+var FAN_EXCITEMENT_HIT = 6;
+var FAN_EXCITEMENT_HOME_GOAL = 20;
+var FAN_EXCITEMENT_AWAY_GOAL = 0.56;
+var FAN_EXCITEMENT_INTERMISSION = 0.73;
+var FAN_EXCITEMENT_HOME_WIN = 2;
+var FAN_EXCITEMENT_AWAY_WIN = 0.48;
+var FRAMES_IN_AIR = 20;
+
+var fanExcitement = DEFAULT_FAN_EXCITEMENT;
+var awayFanExcitement = DEFAULT_FAN_EXCITEMENT;
+var fans = [];
+var fanState = [];
+var fanJumpFrame = [];
+var isFanOfHomeTeam = [];
+var lastModifiedFanExcitement = 0;
+
+/***********
+
+Puck
+
+***********/
+
+var puck = new Circle(20);
+puck.setPosition(arenaCenterX, arenaCenterY);
+
+var PUCK_RADIUS = 4;
+
+var ppx;   //puck position
+var ppy;
+var lppx = 0;    //puck last position
+var lppy = 0;
+var px = 0;    //puck velocities
+var py = 0;
+
+var angle = 0;
+var postX = 0;
+var postY = 0;
+var m = 0;
+var collidedWithPostFrame = 0;
+var collisionDetectionAttempt = 1;
+
+var post = new Circle(10);
+post.setPosition(47.5, 356);
+
+var shootPuck = false;
+var collidedWithNet = false;
+var puckCloseToPost = null;
+
+var aChargingShot = false;
+var bChargingShot = false;
+var shotPower = 0;
+var shotPowerMultiplier = 0;
+
+var puckOnFire = false;
+var puckWasOnFire = false;
+var fireIsAdded = false;
+var fire;
+
+/***********
+
+Debug
+
+***********/
+
+var debugBack = new Rectangle(width, arenaY);
+debugBack.setPosition(0, 0);
+debugBack.setColor(Color.GRAY);
+
+var debugText = [];
+var debugPreText = [];
+var debugVars = [];
+var debugNum = 0;
+var debugMovX = 0;
+var debugMovY = 0;
+var debugActive = false;
+
+
+
+var timerText = new Text("", "70pt Verdana");
+
+var back = new Rectangle(width, height);
+back.setColor("#3a3c47");
+
+var ice = new Rectangle(width, arenaBottom - arenaTop);
+ice.setColor("#EBF5FB");
+ice.setPosition(0, arenaTop);
+
+var behindTeamOneScoreSquare;
+var behindTeamTwoScoreSquare;
+var goalText = new Text("Goal!", "120pt Verdana");
+goalText.setPosition(width/2 - goalText.getWidth()/2, arenaCenterY + goalText.getHeight()/4);
+
+
+
+//lerping
+var rate = 0;
+var dif = 0;
+
+var lastHitFrame = 0;
+var dis = 0;
+var movX = 0;
+var movY = 0;
+
+var colinBang = new Audio("https://codehs.com/uploads/dfac89b4415273cfb565a1bff94940e5");
+var img = new WebImage("https://upload.wikimedia.org/wikipedia/commons/thumb/f/ff/Solid_blue.svg/512px-Solid_blue.svg.png");
+var g = new Circle(5);
+g.setColor(Color.GREEN);
+g.setPosition(arenaCenterX, arenaCenterY);
+
+
+
+//60 ~= frames/sec
+
+function start(){
+	keyDownMethod(keyDown);
+	keyUpMethod(keyUp);
+    mouseMoveMethod(mouseMove);
+	mouseDownMethod(mouseDown);
+	mouseUpMethod(mouseUp);
+    mainMenu();
+    addDebugVariables();
+    addPotentialMessages();
+    setTimer(update, 1);
+    if(startWithDebug){
+        toggleDebug();
+    }
+    
+    //drawIntermission();
+    //addIntermission();
+    //add(img);
+    
+}
+
+/**************************************************************
+
+
+UPDATE
+
+
+*************************************************************/
+
+function update(){
+    frame++;
+    if(!game || pause){
+        return;
+    }
+    
+    updateFans();
+    preGameTimer();
+    clock();
+    intermission();
+    faceoffUpdate();
+    
+    movePlayers();
+    moveGoalies();
+    pickupPuck();
+    movePuck();
+    
+    collisions();
+    hittingCollisions();
+    maintainPuckVelocity();
+    determineShotPower();
+    puckSpeed();
+    
+    checkForGoals();
+    doGoalTimer();
+    
+    if(!endOfPeriod){
+        messages();
+        snowBuild();
+    }
+    moveSnow();
+    
+    updateDebug();
+    if(!doFaceoff && !endOfPeriod && !pause){
+        remove(puck);
+        add(puck);
+    }
+    
+    if(resetTheGame){
+        resetGameAndOpenMenu();
+        resetTheGame = false;
+    }
+}
+
+
+/**************************************************************
+
+
+PLAYERS
+
+
+*************************************************************/
+
+function setPlayerTargetVelocity(player, axis, dir){
+    aLastTarX = aTarX;
+    aLastTarY = aTarY;
+    bLastTarX = bTarX;
+    bLastTarY = bTarY;
+    if(teamOneScored || teamTwoScored){
+        aTarX = 0;
+        aTarY = 0;
+        bTarX = 0;
+        bTarY = 0;
+        return;
+    }
+    if(playersCanMove){
+        if(player == 1){
+            if(axis == 0){
+                aTarX = dir;
+            }else{
+                aTarY = dir;
+            }
+        }
+        if(player == 2){
+            if(axis == 0){
+                bTarX = dir;
+            }else{
+                bTarY = dir;
+            }
+        }
+    }
+}
+
+function movePlayers(){
+    if(playersCanMove){
+        ax = lerpPlayerSpeed(ax, aTarX, aSpeed, 1, 1);
+        ay = lerpPlayerSpeed(ay, aTarY, aSpeed, 1, 2);
+        bx = lerpPlayerSpeed(bx, bTarX, bSpeed, 2, 1);
+        by = lerpPlayerSpeed(by, bTarY, bSpeed, 2, 2);
+        
+        aax = ax/2;
+        aay = ay/2;
+        bbx = bx/2;
+        bby = by/2;
+    }else{
+        aTarX = 0;
+        bTarX = 0;
+        aTarY = 0;
+        bTarY = 0;
+        
+        ax = lerpPlayerSpeed(ax, aTarX, aSpeed, 1, 1);
+        ay = lerpPlayerSpeed(ay, aTarY, aSpeed, 1, 2);
+        bx = lerpPlayerSpeed(bx, bTarX, bSpeed, 2, 1);
+        by = lerpPlayerSpeed(by, bTarY, bSpeed, 2, 2);
+        
+        aax = ax/2;
+        aay = ay/2;
+        bbx = bx/2;
+        bby = by/2;
+    }
+    
+    playerOne.move(aax, aay);
+    playerTwo.move(bbx, bby);
+}
+
+function moveGoalies(){
+    ppx = puck.getX();
+    ppy = puck.getY();
+    
+    agpx = goalieOne.getX();
+    agpy = goalieOne.getY();
+    bgpx = goalieTwo.getX();
+    bgpy = goalieTwo.getY();
+    
+    //goalie min x = 65
+    //goalie max x = 85
+    //dif = 20
+    //goalie min y = 365
+    //goalie max y = 435
+    //dif = 70
+    
+    if(!teamOneScored && !teamTwoScored){
+        if(ppx < 47){
+            agtx = 65;
+        }
+        if(ppx >= 47 && ppx <= 500){
+            agtx = 69 + ((ppx - 47)/453 * 12);
+        }
+        if(ppx > 500 && ppx <= 600){
+            agtx = 85;
+        }
+        
+        if(ppx >= 340){
+            agty = 375 + ((ppy - 250)/300 * 50);
+        }else if(ppx > 150 && ppx < 340){
+            if(ppy < arenaY + 150){
+                agty = 365;
+            }else if(ppy > arenaBottom - 150){
+                agty = 435;
+            }else{
+                agty = 372 + ((ppy - (arenaY + 150))/200 * 56);
+            }
+        }else if(ppx > 100 && ppx < 150){
+            if(ppy < arenaY + 175){
+                agty = 365;
+            }else if(ppy > arenaBottom - 175){
+                agty = 435;
+            }else{
+                agty = 365 + ((ppy - (arenaY + 175))/150 * 70);
+            }
+        }else if(ppx <= 95){
+            if(ppy < arenaY + 200){
+                agty = 365;
+            }else if(ppy > arenaBottom - 200){
+                agty = 435;
+            }else{
+                agty = 365 + ((ppy - (arenaY + 200))/100 * 70);
+            }
+        }
+        
+        if(ppx > 600 && bPuck){
+            agtx = 77;
+        }
+        if(ppx > 600 && !bPuck){
+            agtx = 67;
+            agty = arenaCenterY;
+        }
+    }
+    
+    if(bShotPuck){
+        agty = ppy;
+        if(ppy > 435){
+            agty = 435;
+        }
+        if(ppy < 365){
+            agty = 365;
+        }
+    }
+    
+    if(!teamOneScored && !teamTwoScored){
+        if(ppx > width - 47){
+            bgtx = width - 65;
+        }
+        if(ppx <= width - 47 && ppx >= width - 500){
+            bgtx = width - 69 - (((width - 47) - ppx)/453 * 12);
+        }
+        if(ppx >= width - 600 && ppx < width - 500){
+            bgtx = width - 85;
+        }
+        
+        if(ppx <= width - 340){
+            bgty = 375 + ((ppy - 250)/300 * 50);
+        }else if(ppx < width - 150 && ppx > width - 340){
+            if(ppy < arenaY + 150){
+                bgty = 365;
+            }else if(ppy > arenaBottom - 150){
+                bgty = 435;
+            }else{
+                bgty = 365 + ((ppy - (arenaY + 150))/200 * 70);
+            }
+        }else if(ppx < width - 100 && ppx > width - 150){
+            if(ppy < arenaY + 175){
+                bgty = 365;
+            }else if(ppy > arenaBottom - 175){
+                bgty = 435;
+            }else{
+                bgty = 365 + ((ppy - (arenaY + 175))/150 * 70);
+            }
+        }else if(ppx >= width - 95){
+            if(ppy < arenaY + 200){
+                bgty = 365;
+            }else if(ppy > arenaBottom - 200){
+                bgty = 435;
+            }else{
+                bgty = 365 + ((ppy - (arenaY + 200))/100 * 70);
+            }
+        }
+        
+        if(ppx < width - 600 && aPuck){
+            bgtx = width - 77;
+        }
+        if(ppx < width - 600 && !aPuck){
+            bgtx = width - 67;
+            bgty = arenaCenterY;
+        }
+    }
+    
+    if(aShotPuck){
+        bgty = ppy;
+        if(ppy > 435){
+            bgty = 435;
+        }
+        if(ppy < 365){
+            bgty = 365;
+        }
+    }
+    g.setPosition(-bgtx, -bgty);
+    
+    GoalieMovement();
+    
+    goalieOne.move(agx, agy);
+    goalieTwo.move(bgx, bgy);
+    
+    goalieAoopsText.setPosition(goalieOne.getX() - goalieAoopsText.getWidth()/2, goalieOne.getY() - 28);
+    goalieBoopsText.setPosition(goalieTwo.getX() - goalieBoopsText.getWidth()/2, goalieTwo.getY() - 28);
+    
+    if(frame - goalieAoops > 45){
+        remove(goalieAoopsText);
+    }
+    if(frame - goalieBoops > 45){
+        remove(goalieBoopsText);
+    }
+}
+
+function puckSpeed(){
+    puckWasOnFire = puckOnFire;
+    puckOnFire = false;
+    
+    if(Math.abs(px) > 14.7){
+        puckOnFire = true;
+    }
+    if(Math.abs(py) > 14.7){
+        puckOnFire = true;
+    }
+    if(Math.abs(px) + Math.abs(py) > 36){
+        puckOnFire = true;
+    }
+    
+    if(puckOnFire){
+        if(puckWasOnFire){
+            fire.setEndpoint(puck.getX(), puck.getY());
+            fire.setPosition(fire.getX() + px/1.3, fire.getY() + py/1.3);
+        }else{
+            fire = new Line(puck.getX() - px/5, puck.getY() - py/5, puck.getX(), puck.getY());
+            fire.setColor("#dee8fc");
+            fire.setLineWidth(4.5);
+            add(fire);
+            fireIsAdded = true;
+        }
+    }else{
+        if(fire != null && fireIsAdded){
+            remove(fire);
+            fireIsAdded = false;
+        }
+    }
+}
+
+function updatePuckTrail(){
+    if(fire != null){
+        fire.setPosition(puck.getX(), puck.getY());
+    }
+}
+
+function startShot(){
+    if(aPuck){
+        aChargingShot = true;
+    }
+    if(bPuck){
+        bChargingShot = true;
+    }
+}
+
+function determineShotPower(){
+    remove(aChargeRect);
+    remove(bChargeRect);
+    if(aChargingShot || bChargingShot){
+        if(shotPower < 100){
+            shotPower++;
+        }
+        if(aChargingShot){
+            aChargeRect = new Rectangle(((shotPower - 35)/65) * 2 * aRad, 5);
+            aChargeRect.setPosition(apx - aRad, apy - 24);
+            aChargeRect.setColor(Color.BLUE);
+            add(aChargeRect);
+        }
+        if(bChargingShot){
+            bChargeRect = new Rectangle(((shotPower - 35)/65) * 2 * bRad, 5);
+            bChargeRect.setPosition(bpx - bRad, bpy - 24);
+            bChargeRect.setColor(Color.BLUE);
+            add(bChargeRect);
+        }
+    }else{
+        shotPower = 35;
+    }
+    
+    if(aShotPuck && frame - aShotPuckFrame > 40){
+        aShotPuck = false;
+    }
+    if(bShotPuck && frame - bShotPuckFrame > 40){
+        bShotPuck = false;
+    }
+}
+
+function shoot(){
+    apx = playerOne.getX();
+    apy = playerOne.getY();
+    bpx = playerTwo.getX();
+    bpy = playerTwo.getY();
+    
+    shotPowerMultiplier = shotPower/100;
+    
+    if(aChargingShot){
+        px = ax;
+        py = ay;
+        
+        px += (ppx - apx) * shotPowerMultiplier;
+        py += (ppy - apy) * shotPowerMultiplier;
+        
+        px *= shotPowerMultiplier * 1.55;
+        py *= shotPowerMultiplier * 1.55;
+        
+        aPuck = false;
+        aChargingShot = false;
+        aCanHaveFrame = frame + 12;
+        aShotPuck = true;
+        aShotPuckFrame = frame;
+    }
+    
+    if(bChargingShot){
+        px = bx;
+        py = by;
+        
+        px += (ppx - bpx) * shotPowerMultiplier;
+        py += (ppy - bpy) * shotPowerMultiplier;
+        
+        px *= shotPowerMultiplier;
+        py *= shotPowerMultiplier;
+        
+        bPuck = false;
+        bChargingShot = false;
+        bCanHaveFrame = frame + 12;
+        bShotPuck = true;
+        bShotPuckFrame = frame;
+    }
+    
+    
+}
+
+/**************************************************************
+
+
+PUCK STUFF
+
+
+*************************************************************/
+
+
+function pickupPuck(){
+    if(!playersCanMove){
+        aPuck = false;
+        bPuck = false;
+    }
+    
+    aCanHave = false;
+    bCanHave = false;
+    if(aCanHaveFrame <= frame){
+        aCanHave = true;
+    }
+    if(bCanHaveFrame <= frame){
+        bCanHave = true;
+    }
+    
+    apx = playerOne.getX();
+    apy = playerOne.getY();
+    bpx = playerTwo.getX();
+    bpy = playerTwo.getY();
+    ppx = puck.getX();
+    ppy = puck.getY();
+    
+    var disA = Math.sqrt(((apx - ppx) * (apx - ppx)) + ((apy - ppy) * (apy - ppy)));
+    var disB = Math.sqrt(((bpx - ppx) * (bpx - ppx)) + ((bpy - ppy) * (bpy - ppy)));
+    
+    if(disA <= aRad + PUCK_RADIUS + 1.5){
+        if(disB <= bRad + PUCK_RADIUS + 1.5){
+            //both players close to puck
+            if(aCanHave && bCanHave){
+                aPuck = false;
+                bPuck = false;
+                aChargingShot = false;
+                bChargingShot = false;
+                aCanHaveFrame = frame + 14;
+                bCanHaveFrame = frame + 14;
+                px = Randomizer.nextFloat(-2, 2);
+                py = Randomizer.nextFloat(-2, 2);
+            }else if (aCanHave && !bCanHave){
+                aPuck = true;
+                bPuck = false;
+                bCanHaveFrame = frame + 8;
+                px = 0;
+                py = 0;
+            }else if(bCanHave && !aCanHave){
+                bPuck = true;
+                aPuck = false;
+                aCanHaveFrame = frame + 8;
+                px = 0;
+                py = 0;
+            }
+            
+        }else{
+            if(!aCanHave){
+                return;
+            }
+            //player one close to puck
+            aPuck = true;
+            px = 0;
+            py = 0;
+            
+        }
+        
+    }else if(disB <= bRad + PUCK_RADIUS + 1.5){
+        //player two close to puck
+        if(!bCanHave){
+            return;
+        }
+        bPuck = true;
+        px = 0;
+        py = 0;
+        
+    }
+    
+    if(checkForFaceoffWin){
+        if(aPuck){
+            teamOneFaceoffs++;
+            checkForFaceoffWin = false;
+        }
+        if(bPuck){
+            teamTwoFaceoffs++;
+            checkForFaceoffWin = false;
+        }
+    }
+}
+
+function bumpedWithPuck(){
+    if(aPuck){
+        aPuck = false;
+        aCanHaveFrame = frame + 40;
+        bCanHaveFrame = frame + 5;
+        bumped = true;
+        aChargingShot = false;
+        bChargingShot = false;
+    }
+    if(bPuck){
+        bPuck = false;
+        bCanHaveFrame = frame + 40;
+        aCanHaveFrame = frame + 5;
+        bumped = true;
+        aChargingShot = false;
+        bChargingShot = false;
+    }
+}
+
+function movePuck(){
+    var puckMoveY = 0;
+    var puckMoveX = 0;
+    
+    if(aPuck){
+        if(ax != 0){
+            angle = Math.atan(ay/ax);
+            puckMoveY = aRad * Math.sin(angle);
+            puckMoveX = aRad * Math.cos(angle);
+            if(ax < 0){
+                puckMoveX *= -1;
+            }
+            if(ay > 0){
+                puckMoveY *= -1;
+            }
+            
+            if(ay > 0 && ax > 0){
+                puck.setPosition(apx + puckMoveX, apy - puckMoveY);
+            }else if(ay < 0 && ax < 0){
+                puck.setPosition(apx + puckMoveX, apy - puckMoveY);
+            }else{
+                puck.setPosition(apx + puckMoveX, apy + puckMoveY);
+            }
+        }else{
+            if(ay > 0){
+                puck.setPosition(apx, apy + aRad);
+            }else if(ay < 0){
+                puck.setPosition(apx, apy - aRad);
+            }
+        }
+        
+    }
+    
+    if(bPuck){
+        if(bx != 0){
+            angle = Math.atan(by/bx);
+            puckMoveY = bRad * Math.sin(angle);
+            puckMoveX = bRad * Math.cos(angle);
+            if(bx < 0){
+                puckMoveX *= -1;
+            }
+            if(by > 0){
+                puckMoveY *= -1;
+            }
+            
+            if(by > 0 && bx > 0){
+                puck.setPosition(bpx + puckMoveX, bpy - puckMoveY);
+            }else if(by < 0 && bx < 0){
+                puck.setPosition(bpx + puckMoveX, bpy - puckMoveY);
+            }else{
+                puck.setPosition(bpx + puckMoveX, bpy + puckMoveY);
+            }
+        }else{
+            if(by > 0){
+                puck.setPosition(bpx, bpy + bRad);
+            }else if(by < 0){
+                puck.setPosition(bpx, bpy - bRad);
+            }
+        }
+    }
+}
+
+
+function maintainPuckVelocity(){
+    ppx = puck.getX();
+    ppy = puck.getY();
+    
+    if(aPuck || bPuck){
+        lppx = ppx;
+        lppy = ppy;
+        puckCollisions();
+    }else if(bumped){
+        px = (lppx - ppx) * -1.4;
+        py = (lppy - ppy) * -1.4;
+        bumped = false;
+    }
+    
+    if(shootPuck){
+        shoot();
+        shootPuck = false;
+    }
+    
+    if(!aPuck && !bPuck){
+        px = lerpPuckVelocity(px, 0);
+        py = lerpPuckVelocity(py, 0);
+        for(var i = 0; i < 4; i++){
+            if(!goalieAsave && ! goalieBsave){
+                puck.move(px/4, py/4);
+                puckCollisions();
+            }else{
+                if(goalieAsave){
+                    puck.setPosition(goalieOne.getX(), goalieOne.getY());
+                }
+                if(goalieBsave){
+                    puck.setPosition(goalieTwo.getX(), goalieTwo.getY());
+                }
+            }
+        }
+    }
+}
+
+
+/**************************************************************
+
+
+GOALS
+
+
+*************************************************************/
+
+
+function checkForGoals(){
+    if(endOfPeriod || teamOneScored || teamTwoScored || goalieAsave || goalieBsave){
+        return;
+    }
+    
+    if(ppy > 358 && ppy < 440){
+        if(ppx <= getWidth()/2 - getWidth()/2.2 - 2.05 - PUCK_RADIUS){
+            teamTwoScored = true;
+        }
+        
+        if(ppx >= getWidth()/2 + getWidth()/2.2 + 2.05 + PUCK_RADIUS){
+            teamOneScored = true;
+        }
+    }
+    
+}
+
+function doGoalTimer(){
+    if(!teamOneScored && !teamTwoScored){
+        return;
+    }
+    if(teamOneScored){
+        fanExcitement = FAN_EXCITEMENT_AWAY_GOAL;
+        awayFanExcitement = FAN_EXCITEMENT_HOME_GOAL;
+    }
+    if(teamTwoScored){
+        fanExcitement = FAN_EXCITEMENT_HOME_GOAL;
+        awayFanExcitement = FAN_EXCITEMENT_AWAY_GOAL;
+    }
+    
+    if(goalTimer == 0){
+        inPlay = false;
+        
+        if(teamOneScored){
+            teamOneScore++;
+            goalText.setColor(colors[teamOneColor]);
+        }
+        if(teamTwoScored){
+            teamTwoScore++;
+            goalText.setColor(colors[teamTwoColor]);
+        }
+        add(goalText);
+    }
+    
+    if(goalTimer == 40){
+        //big text that say team name wins! on the scoreboard with their color as background
+        if(gameOver){
+            teamOneScored = false;
+            teamTwoScored = false;
+            goalTimer = 0;
+            return;
+        }
+    }
+    
+    if(goalTimer == 150){
+        if(teamOneScored){
+            behindTeamOneScoreSquare.setColor(Color.YELLOW);
+        }else{
+            behindTeamTwoScoreSquare.setColor(Color.YELLOW);
+        }
+    }
+    
+    if(goalTimer == 200){
+        if(teamOneScored){
+            teamOneScoreText.setText(teamOneScore);
+            teamOneScoreText.setPosition(behindTeamOneScoreSquare.getX() + (behindTeamOneScoreSquare.getWidth() - teamOneScoreText.getWidth())/2, behindTeamOneScoreSquare.getY() + 35);
+        }
+        if(teamTwoScored){
+            teamTwoScoreText.setText(teamTwoScore);
+            teamTwoScoreText.setPosition(behindTeamTwoScoreSquare.getX() + (behindTeamTwoScoreSquare.getWidth() - teamTwoScoreText.getWidth())/2, behindTeamTwoScoreSquare.getY() + 35);
+        }
+    }
+    
+    if(goalTimer == 250){
+        behindTeamOneScoreSquare.setColor(Color.BLACK);
+        behindTeamTwoScoreSquare.setColor(Color.BLACK);
+    }
+    
+    if(goalTimer == 270){
+        faceoff(arenaCenterX, arenaCenterY);
+    }
+    
+    if(goalTimer == 340){
+        remove(goalText);
+    }
+    
+    if(goalTimer == 480){
+        teamOneScored = false;
+        teamTwoScored = false;
+        goalTimer = 0;
+        return;
+    }
+    goalTimer++;
+}
+
+
+/**************************************************************
+
+
+SNOW
+
+
+*************************************************************/
+
+
+function snowBuild(){
+    if(aSlowingX || aSlowingY){
+        spray(1, aax, aay);
+    }
+    if(bSlowingX || bSlowingY){
+        spray(2, bbx, bby);
+    }
+}
+
+function spray(p, sx, sy){
+    var ran = Randomizer.nextFloat(-1, 1);
+    var ranTwo = Randomizer.nextFloat(-1, 1);
+    var ranThree = Randomizer.nextFloat(0.1, 1);
+    var ranFour = Randomizer.nextFloat(0.1, 1);
+    
+    if(ran < 0.5){  //3/4 chance of making snow per frame
+        var snow = new Circle((ran + 2)/1.2);
+        snow.setColor("#d1e9f9");
+        add(snow);
+        
+        if(p == 1){
+            snow.setPosition(apx, apy);
+            snowBuildup.push(snow);
+            snowVelX.push(sx + ran * ranThree * 0.85);
+            snowVelY.push(sy + ranTwo * ranFour * 0.85);
+            snowLife.push(0);
+        }
+        
+        if(p == 2){
+            snow.setPosition(bpx + ran, bpy + ran);
+            snowBuildup.push(snow);
+            snowVelX.push(sx + ran * ranThree * 0.85);
+            snowVelY.push(sy + ranTwo * ranFour * 0.85);
+            snowLife.push(0);
+        }
+    }
+}
+
+function moveSnow(){
+    for(var i = 0; i < snowBuildup.length; i++){
+        if(snowBuildup[i] != null){
+            snowBuildup[i].move(snowVelX[i], snowVelY[i]);
+            snowVelX[i] = (snowVelX[i] * 0.985);
+            snowVelY[i] = (snowVelY[i] * 0.985);
+            snowLife[i] = snowLife[i] + 1;
+            
+            if(snowBuildup[i].getX() + snowVelX[i] + snowBuildup[i].getRadius() < 0){
+                snowBuildup[i].setPosition(0 + snowBuildup[i].getRadius(), snowBuildup[i].getY());
+                snowVelX[i] = -snowVelX[i]/5;
+            }
+            if(snowBuildup[i].getX() + snowVelX[i] + snowBuildup[i].getRadius() > width){
+                snowBuildup[i].setPosition(width - snowBuildup[i].getRadius(), snowBuildup[i].getY());
+                snowVelX[i] = -snowVelX[i]/5;
+            }
+            
+            if(snowBuildup[i].getY() + snowVelY[i] + snowBuildup[i].getRadius() < arenaY){
+                snowBuildup[i].setPosition(snowBuildup[i].getX(), arenaY + snowBuildup[i].getRadius());
+                snowVelY[i] = -snowVelY[i]/5;
+            }
+            if(snowBuildup[i].getY() + snowVelY[i] + snowBuildup[i].getRadius() > arenaBottom){
+                snowBuildup[i].setPosition(snowBuildup[i].getX(), arenaBottom - snowBuildup[i].getRadius());
+                snowVelY[i] = -snowVelY[i]/5;
+            }
+            
+            if(snowLife[i] > snowLifetime){
+                remove(snowBuildup[i]);
+                snowBuildup[i] = null;
+            }
+        }
+    }
+    
+    aSlowingX = false;
+    aSlowingY = false;
+    bSlowingX = false;
+    bSlowingY = false;
+    
+    if(!endOfPeriod && !teamOneScored && !teamTwoScored){
+        remove(playerOne);
+        remove(playerTwo);
+        add(playerOne);
+        add(playerTwo);
+    }
+}
+
+
+
+/**************************************************************
+
+
+GAME
+
+
+*************************************************************/
+
+function preGameTimer(){
+    if(keepDoingTimer){
+        if(timerStartFrame + 70 == frame){
+            timerText.setText("2");
+            timerText.setPosition(width/2 - timerText.getWidth()/2, arenaCenterY + timerText.getHeight()/2 - 150);
+        }
+        if(timerStartFrame + 140 == frame){
+            timerText.setText("1");
+            timerText.setPosition(width/2 - timerText.getWidth()/2, arenaCenterY + timerText.getHeight()/2 - 150);
+        }
+        if(timerStartFrame + 210 == frame){
+            timerText.setText("0");
+            timerText.setPosition(width/2 - timerText.getWidth()/2, arenaCenterY + timerText.getHeight()/2 - 150);
+            add(puck);
+            dropPuck = true;
+        }
+        if(timerStartFrame + 245 == frame){
+            timerText.setText("");
+            timerText.setPosition(width/2 - timerText.getWidth()/2, arenaCenterY + timerText.getHeight()/2 - 150);
+            remove(timerText);
+        }
+        if(puck.getRadius() > PUCK_RADIUS){
+            if((frame - timerStartFrame) % 2 == 0 && dropPuck){
+                puck.setRadius(puck.getRadius() - 0.5);
+            }
+        }else{
+            if(!preFaceoffTimerOver){
+                keepDoingTimer = false;
+                dropPuck = false;
+                playersCanMove = true;
+                inPlay = true;
+                preFaceoffTimerOver = true;
+            }
+        }
+    }
+    
+    if(startTimer){
+        startTimer = false;
+        keepDoingTimer = true;
+        timerStartFrame = frame;
+        
+        timerText.setText("3");
+        timerText.setPosition(width/2 - timerText.getWidth()/2, arenaCenterY + timerText.getHeight()/2 - 150);
+        add(timerText);
+    }
+}
+
+var help = 0;
+
+function clock(){
+    if(inPlay){
+        clockFrameCount++;
+        
+        if(timePerPeriod == 20){
+            if(clockFrameCount % 1 == 0){
+                reduceClock();
+            }
+        }else if(timePerPeriod == 45){
+            if(clockFrameCount % 3 == 0){
+                help++;
+                reduceClock();
+                if(help % 4 == 0){
+                    reduceClock();
+                }
+            }
+        }else if(timePerPeriod == 60){
+            if(clockFrameCount % 3 == 0){
+                reduceClock();
+            }
+        }else if(timePerPeriod == 90){
+            if(clockFrameCount % 5 == 0){
+                help++;
+                reduceClock();
+                if(help % 2 == 0){
+                    reduceClock();
+                }
+            }
+        }else if(timePerPeriod == 120){
+            if(clockFrameCount % 6 == 0){
+                reduceClock();
+            }
+        }
+    }
+}
+
+function reduceClock(){
+    seconds--;
+    if(seconds == -1){
+        seconds = 59;
+        mins--;
+        if(mins == -1){
+            endOfPeriod = true;
+            aTarX = 0;
+            aTarY = 0;
+            bTarX = 0;
+            bTarY = 0;
+            mins = 0;
+            seconds = 0;
+            inPlay = false;
+        }
+    }
+    if(seconds > 9){
+        timeText.setText(mins + ":" + seconds);
+    }else{
+        timeText.setText(mins + ":" + "0" + seconds);
+    }
+    timeText.setPosition(periodText.getX() + 75, periodText.getY() - 4);
+    
+    if(aPuck){
+        teamOnePossession++;
+    }
+    if(bPuck){
+        teamTwoPossession++;
+    }
+}
+
+var rect;
+var winnerText;
+
+function intermission(){
+    if(period > 3){
+        if(teamOneScore > teamTwoScore){
+            gameOver = true;
+            endOfPeriod = true;
+            inPlay = false;
+            winner = 1;
+        }
+        
+        if(teamTwoScore > teamOneScore){
+            gameOver = true;
+            endOfPeriod = true;
+            inPlay = false;
+            winner = 2;
+        }
+    }
+    if(endOfPeriod){
+        if(period == 3){
+            if(teamOneScore > teamTwoScore){
+                gameOver = true;
+                winner = 1;
+            }
+            
+            if(teamTwoScore > teamOneScore){
+                gameOver = true;
+                winner = 2;
+            }
+        }
+        
+        if(!gameOver){
+            if(endOfPeriodTimer == 3){
+                checkForFaceoffWin = false;
+            }
+            if(endOfPeriodTimer == 40){
+                intermissionMessage = 0;
+                nextIntermissionMessage();
+                
+                if(intBar == null){
+                    intBar = new Rectangle(width, 175);
+                    intBar.setPosition(intOffset, arenaCenterY - 87.5);
+                    intBar.setColor(Color.WHITE);
+                    
+                    intText = new Text("", "40pt Verdana");
+                }
+                intText.setText(periodString + " Intermission");
+                if(period == 3){
+                    intText.setText("End of Regulation");
+                }
+                if(period > 3){
+                    var ot = period - 3;
+                    intText.setText("End of Overtime " + ot);
+                }
+                intText.setPosition(arenaCenterX - intText.getWidth()/2 + intOffset, arenaCenterY + 20);
+                add(intBar);
+                add(intText);
+            }
+            
+            if(endOfPeriodTimer > 40 && endOfPeriodTimer <= 120){
+                intOffset -= width/80;
+                intBar.setPosition(intOffset, arenaCenterY - 87.5);
+                intText.setPosition(arenaCenterX - intText.getWidth()/2 + intOffset, arenaCenterY + 20);
+            }
+            
+            
+            if(endOfPeriodTimer == 200){
+                remove(intBar);
+                remove(intText);
+                for(var s = 0; s < snowBuildup.length; s++){
+                    remove(snowBuildup[s]);
+                }
+                addIntermission();
+                updateIntermission();
+            }
+            
+            if(!skippingIntermission && endOfPeriodTimer > 200 && endOfPeriodTimer < 1900){
+                updateMouth();
+                
+                if((endOfPeriodTimer - 200) % 340 == 0){
+                    nextIntermissionMessage();
+                }
+                
+                var secndsLeft = ((1900 - endOfPeriodTimer)/60).toFixed(0);
+                if(secndsLeft != 1){
+                    skipText.setText("Click to skip intermission, or wait " + secndsLeft + " seconds.");
+                }else{
+                    skipText.setText("Click to skip intermission, or wait " + secndsLeft + " second.");
+                }
+            }
+            
+            if(skippingIntermission){
+                updateMouth();
+                if(endOfPeriodTimer == 1720){
+                    remove(skipText);
+                }
+                
+                setIntermissionMessage("Uhh, looks like the players have decided to skip intermission. Alright, uhh, back to the game.");
+            }
+            
+            if(endOfPeriodTimer == 1800){
+                faceoff(arenaCenterX, arenaCenterY);
+            }
+            
+            if(endOfPeriodTimer == 1900){
+                removeIntermission();
+                skippingIntermission = false;
+            }
+            
+            endOfPeriodTimer++;
+            
+            if(endOfPeriodTimer == 1901){
+                intOffset = width;
+                intBar.setPosition(width, arenaCenterY - 87.5);
+                intText.setPosition(arenaCenterX - intText.getWidth()/2 + width, arenaCenterY + 20);
+                endOfPeriodTimer = 0;
+                endOfPeriod = false;
+                
+                mins = 20;
+                seconds = 0;
+                period++;
+                if(period==2){
+                    periodString = "2nd";
+                }else if(period == 3){
+                    periodString = "3rd";
+                }else if(period == 4){
+                    periodString = "OT";
+                }else if(period == 6){
+                    periodString = "( ͡° ͜ʖ ͡°)";
+                }
+                periodText.setText(periodString);
+                timeText.setText("20:00");
+                timeText.setPosition(periodText.getX() + 75, periodText.getY() - 4);
+            }
+        }else{
+            if(endOfPeriodTimer == 180){
+                rect = new Rectangle(width, height);
+                winnerText;
+                if(winner == 1){
+                    rect.setColor(colors[teamOneColor]);
+                    winnerText = new Text(teamOneName + " wins!");
+                    if(teamOneColor == 0 || teamOneColor == 1 || teamOneColor == 2 || teamOneColor == 5 || teamOneColor == 6 || teamOneColor == 7 || teamOneColor == 15 || teamOneColor == 16){
+                        winnerText.setColor(Color.WHITE);
+                    }
+                }else{
+                    rect.setColor(colors[teamTwoColor]);
+                    winnerText = new Text(teamTwoName + " wins!");
+                    if(teamTwoColor == 0 || teamTwoColor == 1 || teamTwoColor == 2 || teamTwoColor == 5 || teamTwoColor == 6 || teamTwoColor == 7 || teamTwoColor == 15 || teamTwoColor == 16){
+                        winnerText.setColor(Color.WHITE);
+                    }
+                }
+                
+                add(rect);
+                add(winnerText);
+                winnerText.setPosition(width/2 - winnerText.getWidth()/2, height/2 + winnerText.getHeight()/2);
+            }
+            
+            endOfPeriodTimer++;
+            
+            if(endOfPeriodTimer == 360){
+                resetTheGame = true;
+            }
+        }
+    }
+}
+
+function updateIntermission(){
+    iTeamOneScore.setText(teamOneScore);
+    iTeamTwoScore.setText(teamTwoScore);
+    
+    iTeamOneShots.setText((teamOneScore + teamTwoSaves));
+    iTeamTwoShots.setText((teamTwoScore + teamOneSaves));
+    
+    iTeamOneSaves.setText(teamOneSaves);
+    iTeamTwoSaves.setText(teamTwoSaves);
+    
+    iTeamOneHits.setText(teamOneHits);
+    iTeamTwoHits.setText(teamTwoHits);
+    
+    iTeamOnePosts.setText(aPosts);
+    iTeamTwoPosts.setText(bPosts);
+    
+    iTeamOneFaceoffs.setText(teamOneFaceoffs);
+    iTeamTwoFaceoffs.setText(teamTwoFaceoffs);
+    
+    var iSeconds = (teamOnePossession % 60);
+    if(iSeconds/10 < 1){
+        iTeamOnePossession.setText((teamOnePossession / 60).toFixed(0) + ":0" + iSeconds);
+    }else{
+        iTeamOnePossession.setText((teamOnePossession / 60).toFixed(0) + ":" + iSeconds);
+    }
+    iSeconds = (teamTwoPossession % 60);
+    if(iSeconds/10 < 1){
+        iTeamTwoPossession.setText((teamTwoPossession / 60).toFixed(0) + ":0" + iSeconds);
+    }else{
+        iTeamTwoPossession.setText((teamTwoPossession / 60).toFixed(0) + ":" + iSeconds);
+    }
+    
+    iTeamOneScore.setPosition(iTeamOneText.getX() + iTeamOneText.getWidth()/2 - iTeamOneScore.getWidth()/2, iTeamOneText.getY() + 82);
+    iTeamTwoScore.setPosition(iTeamTwoText.getX() + iTeamTwoText.getWidth()/2 - iTeamTwoScore.getWidth()/2, iTeamTwoText.getY() + 82);
+    iTeamOneShots.setPosition(iStatsBox.getX() + 10, iShots.getY());
+    iTeamTwoShots.setPosition(iStatsBox.getX() + iStatsBox.getWidth() - 10 - iTeamTwoShots.getWidth(), iShots.getY());
+    iTeamOneSaves.setPosition(iStatsBox.getX() + 10, iSaves.getY());
+    iTeamTwoSaves.setPosition(iStatsBox.getX() + iStatsBox.getWidth() - 10 - iTeamTwoSaves.getWidth(), iSaves.getY());
+    iTeamOneHits.setPosition(iStatsBox.getX() + 10, iHits.getY());
+    iTeamTwoHits.setPosition(iStatsBox.getX() + iStatsBox.getWidth() - 10 - iTeamTwoHits.getWidth(), iHits.getY());
+    iTeamOnePosts.setPosition(iStatsBox.getX() + 10, iPosts.getY());
+    iTeamTwoPosts.setPosition(iStatsBox.getX() + iStatsBox.getWidth() - 10 - iTeamTwoPosts.getWidth(), iPosts.getY());
+    iTeamOneFaceoffs.setPosition(iStatsBox.getX() + 10, iFaceoffs.getY());
+    iTeamTwoFaceoffs.setPosition(iStatsBox.getX() + iStatsBox.getWidth() - 10 - iTeamTwoFaceoffs.getWidth(), iFaceoffs.getY());
+    iTeamOnePossession.setPosition(iStatsBox.getX() + 10, iPossession.getY());
+    iTeamTwoPossession.setPosition(iStatsBox.getX() + iStatsBox.getWidth() - 10 - iTeamTwoPossession.getWidth(), iPossession.getY());
+    
+}
+
+function updateMouth(){
+    if(nextMouthFrame == frame){
+        if(mouthOpen){
+            remove(iManTalk);
+            mouthOpen = false;
+            nextMouthFrame = frame + 5;
+        }else{
+            add(iManTalk);
+            mouthOpen = true;
+            nextMouthFrame = frame + Randomizer.nextInt(6, 30);
+        }
+    }else if(frame - nextMouthFrame > 120){
+        nextMouthFrame = frame + 15;
+    }
+}
+
+
+function faceoff(x, y){
+    if(gameOver){
+        return;
+    }
+    playersCanMove = false;
+    dropPuck = false;
+    faceoffTimer = 0;
+    doFaceoff = true;
+    preFaceoffTimerOver = false;
+    faceoffX = x;
+    faceoffY = y;
+}
+
+function faceoffUpdate(){
+    if(doFaceoff){
+        if(faceoffTimer == 5){
+        }
+        if(faceoffTimer == 140){
+            playerOne.setPosition(faceoffX - 60, faceoffY);
+            playerTwo.setPosition(faceoffX + 60, faceoffY);
+            ax = 0;
+            ay = 0;
+            bx = 0;
+            by = 0;
+            aax = 0;
+            aay = 0;
+            bbx = 0;
+            bby = 0;
+            aTarX = 0;
+            aTarY = 0;
+            bTarX = 0;
+            bTarY = 0;
+            aPuck = false;
+            bPuck = false;
+            px = 0;
+            py = 0;
+            remove(puck);
+        }
+        if(faceoffTimer == 200){
+            goalieAsave = false;
+            goalieBsave = false;
+            puck.setPosition(faceoffX, faceoffY);
+            aPuck = false;
+            bPuck = false;
+            checkForFaceoffWin = true;
+            px = 0;
+            py = 0;
+            puck.setRadius(20);
+            add(puck);
+        }
+        if(faceoffTimer == 210){
+            startTimer = true;
+            doFaceoff = false;
+            faceoffTimer = 0;
+        }
+        faceoffTimer++;
+    }
+}
+
+function nextIntermissionMessage(){
+    if(intermissionMessage == 0){
+        iRan = Randomizer.nextInt(0, 3);
+        if(iRan == 0){
+            setIntermissionMessage("Hello, I'm Colin Whyte. It is intermission.");
+        }else if(iRan == 1){
+            setIntermissionMessage("Oh! Uhm, right. Intermission.");
+        }else if(iRan == 2){
+            setIntermissionMessage("Dang. Someone just unsubscribed from my YouTube channel.");
+        }else if(iRan == 3){
+            setIntermissionMessage("I sure hope Jonny doesn't watch this.");
+        }
+        
+    }
+    if(intermissionMessage == 1){
+        iRan = Randomizer.nextInt(0, 3);
+        if(iRan == 0){
+            setIntermissionMessage("If you look up to the right, uhh, you can see some stats.");
+        }else if(iRan == 1){
+            setIntermissionMessage("Wow! I haven't been watching the game at all, but it sure looks like a good one.");
+        }else if(iRan == 2){
+            if(teamOneScore >= teamTwoScore + 3){
+                setIntermissionMessage("It looks like " + teamTwoName + " is doing really bad.");
+            }else if(teamTwoScore >= teamOneScore + 3){
+                setIntermissionMessage("It looks like " + teamOneName + " is doing really bad.");
+            }else if(teamOneScore + teamTwoSaves >= teamTwoScore + teamOneSaves + 6){
+                setIntermissionMessage(teamOneName + " has a lot more shots than " + teamTwoName);
+            }else if(teamTwoScore + teamOneSaves >= teamOneScore + teamTwoSaves + 6){
+                setIntermissionMessage(teamTwoName + " has a lot more shots than " + teamOneName);
+            }else{
+                setIntermissionMessage("I tried walking on the ice once, but I fell because it was slippery.");
+            }
+        }else if(iRan == 3){
+            setIntermissionMessage("When I look at the stats too much, my head starts to hurt.");
+        }
+    }
+    if(intermissionMessage == 2){
+        iRan = Randomizer.nextInt(0, 3);
+        if(iRan == 0){
+            setIntermissionMessage("And now we will do an interview with a member of the " + teamOneName + " team.");
+        }else if(iRan == 1){
+            setIntermissionMessage("And now we will do an interview with a member of the " + teamTwoName + " team.");
+        }else if(iRan == 2){
+            setIntermissionMessage("...");
+        }else if(iRan == 3){
+            setIntermissionMessage("I can see a fan eating a hot dog from here.");
+        }
+    }
+    if(intermissionMessage == 3){
+        if(iRan == 0){
+            setIntermissionMessage("Nevermind, looks like we cant do that right now.");
+        }else if(iRan == 1){
+            setIntermissionMessage("I'm a really big fan of the " + teamTwoName + " team.");
+        }else if(iRan == 2){
+            setIntermissionMessage("I'm a really good announcer.");
+        }else if(iRan == 3){
+            setIntermissionMessage("How did they get a hot dog??? I want one!");
+        }
+    }
+    if(intermissionMessage == 4){
+        ran = Randomizer.nextInt(0, 1);
+        if(ran == 0){
+            if(iRan == 0){
+                setIntermissionMessage("Well, I'm going to get a hot dog.");
+            }else if(iRan == 1){
+                setIntermissionMessage("Man I wish I played for the " + teamTwoName);
+            }else if(iRan == 2){
+                setIntermissionMessage("Alright, good intermission everybody.");
+            }else if(iRan == 3){
+                setIntermissionMessage("If I dont see a hot dog in front of me in the next thirty seconds, I'm actually going to yell.");
+            }
+        }else{
+            iRan = 0;//Randomizer.nextInt(0, 3);
+            if(iRan == 0){
+                setIntermissionMessage("Can I go home now?");
+            }else if(iRan == 1){
+                setIntermissionMessage("Man I wish I played for the " + teamTwoName);
+            }else if(iRan == 2){
+                setIntermissionMessage("Alright, good intermission everybody.");
+            }else if(iRan == 3){
+                setIntermissionMessage("If I dont see a hot dog in front of me in the next thirty seconds, I'm actually going to yell.");
+            }
+        }
+    }
+    
+    intermissionMessage++;
+}
+
+function setIntermissionMessage(str){
+    iText.setText(str);
+    var lastChar = "";
+    var strTwo = "";
+    while(iText.getX() + iText.getWidth() > iTextBox.getX() + iTextBox.getWidth() - 4){
+        while(true){
+            lastChar = str.charAt(str.length - 1);
+            str = str.substr(0, str.length - 1);
+            iText.setText(str);
+            strTwo = lastChar + strTwo;
+            if(lastChar === " "){
+                break;
+            }
+        }
+    }
+    strTwo = strTwo.substr(1, strTwo.length);
+    iTextTwo.setText(strTwo);
+}
+
+function messages(){
+    remove(textHiderOne);
+    remove(textHiderTwo);
+    add(textHiderOne);
+    add(textHiderTwo);
+    
+    if(!newMessage){
+        if(Randomizer.nextInt(1, 2200) == 1){
+            newMessage = true;
+            while(messageInt == lastMessageDisplayed){
+                ran = Randomizer.nextInt(0, 3);
+                if(ran != 0){
+                    messageInt = Randomizer.nextInt(0, potentialMessages.length - 1);
+                    messageToDisplay = potentialMessages[messageInt];
+                }else{
+                    grabConditionalMessage();
+                }
+            }
+            lastMessageDisplayed = messageInt;
+            
+            add(messageTxt);
+            messageTxt.setText("");
+            messageTxtRef.setText("");
+            messageTxt.setPosition(bottomBar.getX() + bottomBar.getWidth(), bottomBar.getY() + bottomBar.getHeight()/2 + messageTxt.getHeight()/4);
+        }
+        
+    }
+    
+    if(newMessage){
+        messagesTimer();
+    }
+}
+
+function messagesTimer(){
+    messageTxt.move(-1.5, 0);
+    
+    seeIfTooShort();
+    seeIfTooLong();
+    
+    
+    messagesTimerI++;
+}
+
+function seeIfTooLong(){
+    if(lastCharacter == messageToDisplay.length){
+        return;
+    }
+    if(messageTxt.getX() + messageTxt.getWidth() < bottomBar.getX() + bottomBar.getWidth() + 60){
+        lastCharacter++;
+        if(lastCharacter <= messageToDisplay.length){
+            messageTxt.setText(messageToDisplay.substr(firstCharacter, lastCharacter));
+        }
+    }
+    if(messageTxt.getX() + messageTxt.getWidth() > (bottomBar.getX() + bottomBar.getWidth() + 45)){
+        lastCharacter--;
+        messageTxt.setText(messageToDisplay.substr(firstCharacter, lastCharacter));
+    }
+    
+}
+
+function seeIfTooShort(){
+    if(messageTxt.getX() < bottomBar.getX() - 45){
+        messageTxtRef.setText(messageToDisplay.charAt(firstCharacter));
+        messageTxtRef.setPosition(messageTxt.getX(), messageTxt.getY());
+        messageTxt.move(messageTxtRef.getWidth(), 0);
+        firstCharacter++;
+        messageTxt.setText(messageToDisplay.substr(firstCharacter, lastCharacter));
+    }
+    
+    if(firstCharacter == messageToDisplay.length - 1){
+        newMessage = false;
+        messagesTimerI = 0;
+        firstCharacter = 0;
+        lastCharacter = 0;
+        remove(messageTxt);
+    }
+}
+
+function addPotentialMessages(){
+    potentialMessages.push("Fight breaks out in section " + Randomizer.nextInt(1, 25) + ", Row " + String.fromCharCode(65 + Randomizer.nextInt(0, 15)) + ".");
+    potentialMessages.push("Fight breaks out in section " + Randomizer.nextInt(1, 25) + ", Row " + String.fromCharCode(65 + Randomizer.nextInt(0, 15)) + ".");
+    potentialMessages.push("Fight breaks out in section " + Randomizer.nextInt(1, 25) + ", Row " + String.fromCharCode(65 + Randomizer.nextInt(0, 15)) + ".");
+    potentialMessages.push("There will be no hot dogs sold today.");
+    potentialMessages.push("( ͡° ͜ʖ ͡°)");
+    potentialMessages.push("Intermission broadcaster Colin Whyte caught skipping school to stay in bed longer");
+    potentialMessages.push("How do I type an announcement?");
+    potentialMessages.push("Hot dogs 10% off for section " + Randomizer.nextInt(1, 25) + ".");
+    potentialMessages.push("Any fans who ask for Coke instead of Pepsi will be swiftly thrown out.");
+    potentialMessages.push("Alright fans, If your home team scores in the next 10 seconds, everyone will receive free hot dogs!");
+    potentialMessages.push("Will the owner of a red 2002 Ford Ranger, license plate ZLT-1859 please move your vehicle. You're blocking the zamboni.");
+    potentialMessages.push("Someone has lost a wedding ring. If you find it please bring it to broadcaster Colin Whyte.");
+    potentialMessages.push("Someone has lost an iPhone. If you find it please bring it to broadcaster Colin Whyte.");
+    //potentialMessages.push("");
+    //potentialMessages.push("");
+    //potentialMessages.push("");
+    
+    
+    //should you really be playing games right now
+    //pressing Alt + F4 gives player one a free goal
+    //goodbye, goodnight, game over
+    
+    messageInt = Randomizer.nextInt(0, potentialMessages.length - 1);
+    messageToDisplay = potentialMessages[messageInt];
+    lastMessageDisplayed = messageInt;
+}
+
+function grabConditionalMessage(){
+    if(teamOneScore >= teamTwoScore + 3){
+        messageToDisplay = "Fans Speculate " + teamTwoName + " isn't even trying.";
+    }
+    
+    if(teamTwoScore >= teamOneScore + 3){
+        messageToDisplay = "Fans Speculate " + teamOneName + " isn't even trying.";
+    }
+    messageInt++;
+}
+
+
+
+
+
+
+
+
+/**************************************************************
+
+
+DRAW GAME
+
+
+*************************************************************/
+
+
+
+function addPlayers(){
+    aRad = 16 + teamOneSize;
+    bRad = 16 + teamTwoSize;
+    
+    playerOne = new Circle(aRad);
+    playerOne.setPosition(arenaCenterX - 60, arenaCenterY);
+    playerOne.setColor(colors[teamOneColor]);
+    add(playerOne);
+    
+    playerTwo = new Circle(bRad);
+    playerTwo.setPosition(arenaCenterX + 60, arenaCenterY);
+    playerTwo.setColor(colors[teamTwoColor]);
+    add(playerTwo);
+    
+    arenaStuff.push(playerOne);
+    arenaStuff.push(playerTwo);
+}
+
+function addGoalies(){
+    goalieOne = new Circle(17.5);
+    goalieOne.setPosition(getWidth()/2 - getWidth()/2.35, arenaCenterY);
+    goalieOne.setColor(colors[teamOneColor]);
+    agix = goalieOne.getX();
+    add(goalieOne);
+    
+    goalieTwo = new Circle(17.5);
+    goalieTwo.setPosition(getWidth()/2 + getWidth()/2.35, arenaCenterY);
+    goalieTwo.setColor(colors[teamTwoColor]);
+    bgix = goalieOne.getX();
+    add(goalieTwo);
+    
+    arenaStuff.push(goalieOne);
+    arenaStuff.push(goalieTwo);
+}
+
+function addCircle(x, y){
+    var outer = new Circle(70);
+    outer.setColor(Color.RED);
+    outer.setPosition(x, y);
+    add(outer);
+    var outerTwo = new Circle(67);
+    outerTwo.setColor("#EBF5FB");
+    outerTwo.setPosition(x, y);
+    add(outerTwo);
+    var inner = new Circle(10);
+    inner.setColor(Color.RED);
+    inner.setPosition(x, y);
+    add(inner);
+    var lineOne = new Rectangle(4, 15);
+    lineOne.setColor(Color.RED);
+    lineOne.setPosition(x - 14, y - 82);
+    add(lineOne);
+    var lineTwo = new Rectangle(4, 15);
+    lineTwo.setColor(Color.RED);
+    lineTwo.setPosition(x + 14, y - 82);
+    add(lineTwo);
+    var lineThree = new Rectangle(4, 15);
+    lineThree.setColor(Color.RED);
+    lineThree.setPosition(x - 14, y + 67);
+    add(lineThree);
+    var lineFour = new Rectangle(4, 15);
+    lineFour.setColor(Color.RED);
+    lineFour.setPosition(x + 14, y + 67);
+    add(lineFour);
+    
+    arenaStuff.push(outer);
+    arenaStuff.push(outerTwo);
+    arenaStuff.push(inner);
+    arenaStuff.push(lineOne);
+    arenaStuff.push(lineTwo);
+    arenaStuff.push(lineThree);
+    arenaStuff.push(lineFour);
+}
+
+function addLines(){
+    var one = new Rectangle(16, 500);
+    one.setColor(Color.RED);
+    one.setPosition(getWidth()/2 - one.getWidth()/2, 150);
+    add(one);
+    var two = new Rectangle(16, 500);
+    two.setColor("#18289C");
+    two.setPosition(getWidth()/2 - getWidth()/6.5 - two.getWidth()/2, 150);
+    add(two);
+    var three = new Rectangle(16, 500);
+    three.setColor("#18289C");
+    three.setPosition(getWidth()/2 + getWidth()/6.5 + three.getWidth()/2, 150);
+    add(three);
+    var four = new Rectangle(4, 500);
+    four.setColor(Color.RED);
+    four.setPosition(getWidth()/2 - getWidth()/2.2 - four.getWidth()/2, 150);
+    add(four);
+    var five = new Rectangle(4, 500);
+    five.setColor(Color.RED);
+    five.setPosition(getWidth()/2 + getWidth()/2.2 + five.getWidth()/2, 150);
+    add(five);
+    
+    var crease = new Arc(50, 270, 90, 0);
+    crease.setColor("#AED6F1");
+    crease.setPosition(four.getX() + four.getWidth(),  400);
+    add(crease);
+    var creaseTwo = new Arc(50, 90, 270, 0);
+    creaseTwo.setColor("#AED6F1");
+    creaseTwo.setPosition(five.getX(),  400);
+    add(creaseTwo);
+    var parameterOne = four.getX() + four.getWidth();
+    var parameterTwo = five.getX();
+    var parameterThree = four.getWidth();
+    addNets(parameterOne, parameterTwo, parameterThree);
+    
+    
+    arenaStuff.push(one);
+    arenaStuff.push(two);
+    arenaStuff.push(three);
+    arenaStuff.push(four);
+    arenaStuff.push(five);
+    arenaStuff.push(crease);
+    arenaStuff.push(creaseTwo);
+}
+
+function addCenterCircle(){
+    var outer = new Circle(70);
+    outer.setColor(Color.RED);
+    outer.setPosition(arenaCenterX, arenaCenterY);
+    add(outer);
+    var outerTwo = new Circle(67);
+    outerTwo.setColor("#EBF5FB");
+    outerTwo.setPosition(arenaCenterX, arenaCenterY);
+    add(outerTwo);
+    var inner = new Circle(10);
+    inner.setColor(Color.RED);
+    inner.setPosition(arenaCenterX, arenaCenterY);
+    add(inner);
+    
+    var offsideOne = new Circle(10);
+    offsideOne.setColor("#18289C");
+    offsideOne.setPosition(getWidth()/5 * 2, 215);
+    add(offsideOne);
+    var offsideTwo = new Circle(10);
+    offsideTwo.setColor("#18289C");
+    offsideTwo.setPosition(getWidth() - (getWidth()/5 * 2), 215);
+    add(offsideTwo);
+    var offsideThree = new Circle(10);
+    offsideThree.setColor("#18289C");
+    offsideThree.setPosition(getWidth()/5 * 2, 585);
+    add(offsideThree);
+    var offsideFour = new Circle(10);
+    offsideFour.setColor("#18289C");
+    offsideFour.setPosition(getWidth() - (getWidth()/5 * 2), 585);
+    add(offsideFour);
+    
+    arenaStuff.push(outer);
+    arenaStuff.push(outerTwo);
+    arenaStuff.push(inner);
+    arenaStuff.push(offsideOne);
+    arenaStuff.push(offsideTwo);
+    arenaStuff.push(offsideThree);
+    arenaStuff.push(offsideFour);
+}
+
+function addNets(xOne, xTwo, width){
+    var netOneBarOne = new Rectangle(xOne, 4);
+    netOneBarOne.setPosition(0, 354);
+    add(netOneBarOne);
+    var netOneBarTwo = new Rectangle(xOne, 4);
+    netOneBarTwo.setPosition(0, 440);
+    add(netOneBarTwo);
+    var netOneBarThree = new Rectangle(4, netOneBarTwo.getY() - (netOneBarOne.getY() - 4));
+    netOneBarThree.setPosition(0, 354);
+    add(netOneBarThree);
+    var netTwoBarOne = new Rectangle(xOne, 4);
+    netTwoBarOne.setPosition(xTwo, 354);
+    add(netTwoBarOne);
+    var netTwoBarTwo = new Rectangle(xOne, 4);
+    netTwoBarTwo.setPosition(xTwo, 440);
+    add(netTwoBarTwo);
+    var netTwoBarThree = new Rectangle(4, netTwoBarTwo.getY() - (netTwoBarOne.getY() - 4));
+    netTwoBarThree.setPosition(xTwo + xOne - 8, 354);
+    add(netTwoBarThree);
+    
+    arenaStuff.push(netOneBarOne);
+    arenaStuff.push(netOneBarTwo);
+    arenaStuff.push(netOneBarThree);
+    arenaStuff.push(netTwoBarOne);
+    arenaStuff.push(netTwoBarTwo);
+    arenaStuff.push(netTwoBarThree);
+}
+
+var ton;
+var ttn;
+var blackbar;
+var blackbarthree;
+var blackbarfour;
+var blackbarlast;
+
+function addScoreboard(){
+    var whiteoutline = new Rectangle(getWidth() - 100, 50);
+    whiteoutline.setPosition(50, 90);
+    whiteoutline.setColor(Color.WHITE);
+    add(whiteoutline);
+    
+    blackbar = new Rectangle(135, 46);
+    blackbar.setPosition(52, 92);
+    add(blackbar);
+    
+    teamOneBox = new Rectangle(250, 46);
+    teamOneBox.setPosition(blackbar.getX() + blackbar.getWidth() + 2, 92);
+    teamOneBox.setColor(colors[teamOneColor]);
+    add(teamOneBox);
+    
+    blackbarthree = new Rectangle(46, 46);
+    blackbarthree.setPosition(teamOneBox.getX() + teamOneBox.getWidth() + 2, 92);
+    behindTeamOneScoreSquare = blackbarthree;
+    add(blackbarthree);
+    
+    teamTwoBox = new Rectangle(250, 46);
+    teamTwoBox.setPosition(blackbarthree.getX() + blackbarthree.getWidth() + 2, 92);
+    teamTwoBox.setColor(colors[teamTwoColor]);
+    add(teamTwoBox);
+    
+    blackbarfour = new Rectangle(46, 46);
+    blackbarfour.setPosition(teamTwoBox.getX() + teamTwoBox.getWidth() + 2, 92);
+    behindTeamTwoScoreSquare = blackbarfour;
+    add(blackbarfour);
+    
+    blackbarlast = new Rectangle(whiteoutline.getWidth() - (blackbarthree.getWidth() + teamOneBox.getWidth() + blackbar.getWidth() + teamTwoBox.getWidth() + 14 + blackbarfour.getWidth()), 46);
+    blackbarlast.setPosition(blackbarfour.getX() + blackbarfour.getWidth() + 2, 92);
+    add(blackbarlast);
+    
+    var luk = new Text("Luk", "34pt Verdana");
+    luk.setPosition(blackbar.getX() + 24, blackbar.getY() + 40);
+    luk.setColor("#FFD700");
+    add(luk);
+    ton = new Text(teamOneName, "18pt Verdana");
+    ton.setPosition(teamOneBox.getX() + 20, teamOneBox.getY() + 34);
+    ton.setColor(Color.WHITE);
+    add(ton);
+    ttn = new Text(teamTwoName, "18pt Verdana");
+    ttn.setPosition(teamTwoBox.getX() + 20, teamTwoBox.getY() + 34);
+    ttn.setColor(Color.WHITE);
+    add(ttn);
+    periodText = new Text("1st", "26pt Verdana");
+    periodText.setPosition(blackbarlast.getX() + 2, blackbarlast.getY() + 36);
+    periodText.setColor(Color.WHITE);
+    add(periodText);
+    timeText = new Text("20:00", "18pt Verdana");
+    timeText.setPosition(periodText.getX() + 75, blackbarlast.getY() + 32);
+    timeText.setColor(Color.WHITE);
+    add(timeText);
+    teamOneScoreText = new Text("" + teamOneScore, "24pt Verdana");
+    teamOneScoreText.setPosition(blackbarthree.getX() + (blackbarthree.getWidth() - teamOneScoreText.getWidth())/2, blackbarthree.getY() + 35);
+    teamOneScoreText.setColor(Color.WHITE);
+    add(teamOneScoreText);
+    teamTwoScoreText = new Text("" + teamTwoScore, "24pt Verdana");
+    teamTwoScoreText.setPosition(blackbarfour.getX() + (blackbarfour.getWidth() - teamTwoScoreText.getWidth())/2, blackbarfour.getY() + 35);
+    teamTwoScoreText.setColor(Color.WHITE);
+    add(teamTwoScoreText);
+    
+    arenaStuff.push(whiteoutline);
+    arenaStuff.push(blackbar);
+    arenaStuff.push(teamOneBox);
+    arenaStuff.push(blackbarthree);
+    arenaStuff.push(teamTwoBox);
+    arenaStuff.push(blackbarfour);
+    arenaStuff.push(blackbarlast);
+    arenaStuff.push(luk);
+    arenaStuff.push(ton);
+    arenaStuff.push(ttn);
+    arenaStuff.push(periodText);
+    arenaStuff.push(timeText);
+    arenaStuff.push(teamOneScoreText);
+    arenaStuff.push(teamTwoScoreText);
+}
+
+function resetScoreboard(){
+    teamOneBox.setColor(colors[teamOneColor]);
+    teamTwoBox.setColor(colors[teamTwoColor]);
+    ton.setText(teamOneName);
+    ton.setPosition(teamOneBox.getX() + 20, teamOneBox.getY() + 34);
+    ttn.setText(teamTwoName);
+    ttn.setPosition(teamTwoBox.getX() + 20, teamTwoBox.getY() + 34);
+    periodText.setText("1st");
+    periodText.setPosition(blackbarlast.getX() + 2, blackbarlast.getY() + 36);
+    timeText.setText("20:00");
+    timeText.setPosition(periodText.getX() + 75, blackbarlast.getY() + 32);
+    teamOneScoreText.setText("0");
+    teamOneScoreText.setPosition(blackbarthree.getX() + (blackbarthree.getWidth() - teamOneScoreText.getWidth())/2, blackbarthree.getY() + 35);
+    teamTwoScoreText.setText("0");
+    teamTwoScoreText.setPosition(blackbarfour.getX() + (blackbarfour.getWidth() - teamTwoScoreText.getWidth())/2, blackbarfour.getY() + 35);
+}
+
+function drawIntermission(){
+    intermissionBackground = new Rectangle(width, height);
+    intermissionBackground.setColor("#1A1A1D");
+    
+    iMan = new WebImage("https://raw.githubusercontent.com/lukaljoncol/lukaljoncol.github.io/master/Colin-W.5.jpg");
+    iMan.setSize(320, 400);
+    iMan.setPosition(60, 120);
+    
+    iManTalk = new WebImage("https://raw.githubusercontent.com/lukaljoncol/lukaljoncol.github.io/master/Colin-W.52.jpg");
+    iManTalk.setSize(320, 400);
+    iManTalk.setPosition(60, 120);
+    
+    iTextBox = new Rectangle(width - 200, 100);
+    iTextBox.setPosition(100, 610);
+    iTextBox.setColor("#d8d8d8");
+    
+    iText = new Text("Hello, I'm Colin Whyte. It is intermission.", "20pt Myriad Pro");
+    iText.setPosition(iTextBox.getX() + 4, iTextBox.getY() + 8 + iText.getHeight());
+    
+    iTextTwo = new Text("", "20pt Myriad Pro");
+    iTextTwo.setPosition(iText.getX(), iText.getY() + 10 + iTextTwo.getHeight());
+    
+    iStatsBox = new Rectangle(560, 500);
+    iStatsBox.setPosition(420, 60);
+    iStatsBox.setColor("#d8d8d8");
+    
+    iTeamOneText = new Text(teamOneName, "20pt Verdana");
+    iTeamOneText.setPosition(iStatsBox.getX() + 15, iStatsBox.getY() + 30);
+    iTeamOneText.setColor(colors[teamOneColor]);
+    
+    iTeamTwoText = new Text(teamTwoName, "20pt Verdana");
+    iTeamTwoText.setPosition(iStatsBox.getX() + iStatsBox.getWidth() - 15 - iTeamTwoText.getWidth(), iStatsBox.getY() + 30);
+    iTeamTwoText.setColor(colors[teamTwoColor]);
+    
+    iTeamOneScore = new Text("0", "55pt Verdana");
+    iTeamOneScore.setPosition(iTeamOneText.getX() + iTeamOneText.getWidth()/2 - iTeamOneScore.getWidth()/2, iTeamOneText.getY() + 82);
+    iTeamOneScore.setColor(colors[teamOneColor]);
+    
+    iTeamTwoScore = new Text("0", "55pt Verdana");
+    iTeamTwoScore.setPosition(iTeamTwoText.getX() + iTeamTwoText.getWidth()/2 - iTeamTwoScore.getWidth()/2, iTeamTwoText.getY() + 82);
+    iTeamTwoScore.setColor(colors[teamTwoColor]);
+    
+    iShots = new Text("Shots", "25pt Verdana");
+    iShots.setPosition(iStatsBox.getX() + iStatsBox.getWidth()/2 - iShots.getWidth()/2, iStatsBox.getY() + 180);
+    
+    iTeamOneShots = new Text("0", "25pt Verdana");
+    iTeamOneShots.setPosition(iStatsBox.getX() + 10, iShots.getY());
+    
+    iTeamTwoShots = new Text("0", "25pt Verdana");
+    iTeamTwoShots.setPosition(iStatsBox.getX() + iStatsBox.getWidth() - 10 - iTeamTwoShots.getWidth(), iShots.getY());
+    
+    iSaves = new Text("Saves", "25pt Verdana");
+    iSaves.setPosition(iStatsBox.getX() + iStatsBox.getWidth()/2 - iSaves.getWidth()/2, iStatsBox.getY() + 235);
+    
+    iTeamOneSaves = new Text("0", "25pt Verdana");
+    iTeamOneSaves.setPosition(iStatsBox.getX() + 10, iSaves.getY());
+    
+    iTeamTwoSaves = new Text("0", "25pt Verdana");
+    iTeamTwoSaves.setPosition(iStatsBox.getX() + iStatsBox.getWidth() - 10 - iTeamTwoSaves.getWidth(), iSaves.getY());
+    
+    iHits = new Text("Hits", "25pt Verdana");
+    iHits.setPosition(iStatsBox.getX() + iStatsBox.getWidth()/2 - iHits.getWidth()/2, iStatsBox.getY() + 290);
+    
+    iTeamOneHits = new Text("0", "25pt Verdana");
+    iTeamOneHits.setPosition(iStatsBox.getX() + 10, iHits.getY());
+    
+    iTeamTwoHits = new Text("0", "25pt Verdana");
+    iTeamTwoHits.setPosition(iStatsBox.getX() + iStatsBox.getWidth() - 10 - iTeamTwoHits.getWidth(), iHits.getY());
+    
+    iPosts = new Text("Shots off Post", "25pt Verdana");
+    iPosts.setPosition(iStatsBox.getX() + iStatsBox.getWidth()/2 - iPosts.getWidth()/2, iStatsBox.getY() + 345);
+    
+    iTeamOnePosts = new Text("0", "25pt Verdana");
+    iTeamOnePosts.setPosition(iStatsBox.getX() + 10, iPosts.getY());
+    
+    iTeamTwoPosts = new Text("0", "25pt Verdana");
+    iTeamTwoPosts.setPosition(iStatsBox.getX() + iStatsBox.getWidth() - 10 - iTeamTwoPosts.getWidth(), iPosts.getY());
+    
+    iFaceoffs = new Text("Faceoff Wins", "25pt Verdana");
+    iFaceoffs.setPosition(iStatsBox.getX() + iStatsBox.getWidth()/2 - iFaceoffs.getWidth()/2, iStatsBox.getY() + 400);
+    
+    iTeamOneFaceoffs = new Text("0", "25pt Verdana");
+    iTeamOneFaceoffs.setPosition(iStatsBox.getX() + 10, iFaceoffs.getY());
+    
+    iTeamTwoFaceoffs = new Text("0", "25pt Verdana");
+    iTeamTwoFaceoffs.setPosition(iStatsBox.getX() + iStatsBox.getWidth() - 10 - iTeamTwoFaceoffs.getWidth(), iFaceoffs.getY());
+    
+    iPossession = new Text("Time of Possession", "23.5pt Verdana");
+    iPossession.setPosition(iStatsBox.getX() + iStatsBox.getWidth()/2 - iPossession.getWidth()/2, iStatsBox.getY() + 455);
+    
+    iTeamOnePossession = new Text("0:00", "25pt Verdana");
+    iTeamOnePossession.setPosition(iStatsBox.getX() + 10, iPossession.getY());
+    
+    iTeamTwoPossession = new Text("0:00", "25pt Verdana");
+    iTeamTwoPossession.setPosition(iStatsBox.getX() + iStatsBox.getWidth() - 10 - iTeamTwoPossession.getWidth(), iPossession.getY());
+    
+    skipText = new Text("Click to skip intermission, or wait 10 seconds.", "15pt Verdana");
+    skipText.setColor(white);
+    centerText(skipText, intermissionBackground);
+    skipText.setPosition(skipText.getX(), height - 35);
+    
+    iThings.push(intermissionBackground);
+    iThings.push(iMan);
+    iThings.push(iManTalk);
+    iThings.push(iTextBox);
+    iThings.push(iText);
+    iThings.push(iTextTwo);
+    iThings.push(iStatsBox);
+    iThings.push(iTeamOneText);
+    iThings.push(iTeamTwoText);
+    iThings.push(iTeamOneScore);
+    iThings.push(iTeamTwoScore);
+    iThings.push(iTeamOneShots);
+    iThings.push(iTeamTwoShots);
+    iThings.push(iTeamOneSaves);
+    iThings.push(iTeamTwoSaves);
+    iThings.push(iTeamOneHits);
+    iThings.push(iTeamTwoHits);
+    iThings.push(iTeamOnePosts);
+    iThings.push(iTeamTwoPosts);
+    iThings.push(iTeamOneFaceoffs);
+    iThings.push(iTeamTwoFaceoffs);
+    iThings.push(iTeamOnePossession);
+    iThings.push(iTeamTwoPossession);
+    iThings.push(iShots);
+    iThings.push(iSaves);
+    iThings.push(iHits);
+    iThings.push(iPosts);
+    iThings.push(iFaceoffs);
+    iThings.push(iPossession);
+    iThings.push(skipText);
+}
+
+function resetIntermission(){
+    iTeamOneText.setText(teamOneName);
+    iTeamOneText.setPosition(iStatsBox.getX() + 15, iStatsBox.getY() + 30);
+    iTeamOneText.setColor(colors[teamOneColor]);
+    
+    iTeamTwoText.setText(teamTwoName);
+    iTeamTwoText.setPosition(iStatsBox.getX() + iStatsBox.getWidth() - 15 - iTeamTwoText.getWidth(), iStatsBox.getY() + 30);
+    iTeamTwoText.setColor(colors[teamTwoColor]);
+}
+
+function addIntermission(){
+    for(var i = 0; i < iThings.length; i++){
+        add(iThings[i]);
+    }
+    remove(iManTalk);
+}
+
+function removeIntermission(){
+    for(var i = 0; i < iThings.length; i++){
+        remove(iThings[i]);
+    }
+}
+
+function addBottomUI(){
+    var keySize = 22;
+    
+    keyW = new Rectangle(keySize, keySize);
+    keyW.setPosition(40, arenaBottom + 6);
+    keyW.setColor(Color.GRAY);
+    add(keyW);
+    var keyWText = new Text("W", "13pt Verdana");
+    centerText(keyWText, keyW);
+    add(keyWText);
+    
+    keyA = new Rectangle(keySize, keySize);
+    keyA.setPosition(40 - keySize - 2, arenaBottom + 8 + keySize);
+    keyA.setColor(Color.GRAY);
+    add(keyA);
+    var keyAText = new Text("A", "13pt Verdana");
+    centerText(keyAText, keyA);
+    add(keyAText);
+    
+    keyS = new Rectangle(keySize, keySize);
+    keyS.setPosition(40, arenaBottom + 8 + keySize);
+    keyS.setColor(Color.GRAY);
+    add(keyS);
+    var keySText = new Text("S", "13pt Verdana");
+    centerText(keySText, keyS);
+    add(keySText);
+    
+    keyD = new Rectangle(keySize, keySize);
+    keyD.setPosition(40 + keySize + 2, arenaBottom + 8 + keySize);
+    keyD.setColor(Color.GRAY);
+    add(keyD);
+    var keyDText = new Text("D", "13pt Verdana");
+    centerText(keyDText, keyD);
+    add(keyDText);
+    
+    
+    
+    
+    keyUp = new Rectangle(keySize, keySize);
+    keyUp.setPosition(width - (40) - keySize, arenaBottom + 6);
+    keyUp.setColor(Color.GRAY);
+    add(keyUp);
+    var keyUpText = new Text("↑", "13pt Verdana");
+    centerText(keyUpText, keyUp);
+    add(keyUpText);
+    
+    keyLeft = new Rectangle(keySize, keySize);
+    keyLeft.setPosition(width - (40 + keySize + 2) - keySize, arenaBottom + 8 + keySize);
+    keyLeft.setColor(Color.GRAY);
+    add(keyLeft);
+    var keyLeftText = new Text("←", "13pt Verdana");
+    centerText(keyLeftText, keyLeft);
+    add(keyLeftText);
+    
+    keyDown = new Rectangle(keySize, keySize);
+    keyDown.setPosition(width - (40) - keySize, arenaBottom + 8 + keySize);
+    keyDown.setColor(Color.GRAY);
+    add(keyDown);
+    var keyDownText = new Text("↓", "13pt Verdana");
+    centerText(keyDownText, keyDown);
+    add(keyDownText);
+    
+    keyRight = new Rectangle(keySize, keySize);
+    keyRight.setPosition(width - (40 - keySize - 2) - keySize, arenaBottom + 8 + keySize);
+    keyRight.setColor(Color.GRAY);
+    add(keyRight);
+    var keyRightText = new Text("→", "13pt Verdana");
+    centerText(keyRightText, keyRight);
+    add(keyRightText);
+    
+    bottomBar = new Rectangle(width - 450, 45);
+    bottomBar.setPosition(225, arenaBottom + 10);
+    add(bottomBar);
+    
+    textHiderOne = new Rectangle(60, 45);
+    textHiderOne.setPosition(bottomBar.getX() + bottomBar.getWidth(), bottomBar.getY());
+    textHiderOne.setColor("#3a3c47");
+    add(textHiderOne);
+    
+    textHiderTwo = new Rectangle(60, 45);
+    textHiderTwo.setPosition(bottomBar.getX() - 60, bottomBar.getY());
+    textHiderTwo.setColor("#3a3c47");
+    add(textHiderTwo);
+    
+    arenaStuff.push(keyW);
+    arenaStuff.push(keyWText);
+    arenaStuff.push(keyA);
+    arenaStuff.push(keyAText);
+    arenaStuff.push(keyS);
+    arenaStuff.push(keySText);
+    arenaStuff.push(keyD);
+    arenaStuff.push(keyDText);
+    arenaStuff.push(keyUp);
+    arenaStuff.push(keyUpText);
+    arenaStuff.push(keyLeft);
+    arenaStuff.push(keyLeftText);
+    arenaStuff.push(keyDown);
+    arenaStuff.push(keyDownText);
+    arenaStuff.push(keyRight);
+    arenaStuff.push(keyRightText);
+    arenaStuff.push(bottomBar);
+    arenaStuff.push(textHiderOne);
+    arenaStuff.push(textHiderTwo);
+}
+
+
+
+function addDebugVariables(){
+    addDebugVariable("TeamOneSize", teamOneSize);
+    addDebugVariable("TeamTwoSize", teamTwoSize);
+    addDebugVariable("PlayersCanMove", playersCanMove);
+    addDebugVariable("startTimer", startTimer);
+    addDebugVariable("keepDoingTimer", keepDoingTimer);
+    addDebugVariable("dropPuck", dropPuck);
+    addDebugVariable("preFaceoffTimerOver", preFaceoffTimerOver);
+    addDebugVariable("doFaceoff", doFaceoff);
+    addDebugVariable("inPlay", inPlay);
+    addDebugVariable("timerStartFrame", timerStartFrame);
+    addDebugVariable("faceoffTimer", faceoffTimer);
+    addDebugVariable("endOfPeriodTimer", endOfPeriodTimer);
+    addDebugVariable("EndOfPeriod", endOfPeriod);
+    addDebugVariable("frame", frame);
+    addDebugVariable("FanExcitement", fanExcitement);
+    addDebugVariable("AwayFanExcitement", awayFanExcitement);
+    addDebugVariable("Angle", angle);
+    addDebugVariable("aax", ax);
+    addDebugVariable("aay", ay);
+    addDebugVariable("bbx", bx);
+    addDebugVariable("bby", by);
+    addDebugVariable("goalTimer", goalTimer);
+    addDebugVariable("ppx", ppx);
+    addDebugVariable("ppy", ppy);
+    addDebugVariable("px", px);
+    addDebugVariable("py", py);
+    addDebugVariable("agtx", agtx);
+    addDebugVariable("agty", agty);
+    addDebugVariable("agx", agx);
+    addDebugVariable("agy", agy);
+    addDebugVariable("agpx", agpx);
+    addDebugVariable("agpy", agpy);
+    addDebugVariable("mouseX", 0);
+    addDebugVariable("mouseY", 0);
+}
+
+function addDebugVariable(name, variable){
+    debugMovX = 6;
+    debugMovY = 13;
+    
+    debugText[debugNum] = new Text(name + ": " + variable, "12pt Times New Roman");
+    for(var i = 0; i < debugText.length; i++){
+        if(i != 0){
+            debugMovX += debugText[i - 1].getWidth() + 30;
+            if(i % 6 == 0){
+                debugMovX = 6;
+                debugMovY += 16;
+            }
+        }
+    }
+    
+    debugText[debugNum].setPosition(debugMovX, debugMovY);
+    debugPreText[debugNum] = name + ": ";
+    debugVars[debugNum] = variable;
+    debugNum++;
+}
+
+function toggleDebug(){
+    if(!debugActive){
+        add(debugBack);
+        for(var i = 0; i < debugText.length; i++){
+            add(debugText[i]);
+        }
+        debugActive = true;
+    }else{
+        remove(debugBack);
+        for(var i = 0; i < debugText.length; i++){
+            remove(debugText[i]);
+        }
+        debugActive = false;
+    }
+}
+
+function updateDebug(){
+    debugVars[0] = teamOneSize;
+    debugVars[1] = teamTwoSize;
+    debugVars[2] = playersCanMove;
+    debugVars[3] = startTimer;
+    debugVars[4] = keepDoingTimer;
+    debugVars[5] = dropPuck;
+    debugVars[6] = preFaceoffTimerOver;
+    debugVars[7] = doFaceoff;
+    debugVars[8] = inPlay;
+    debugVars[9] = timerStartFrame;
+    debugVars[10] = faceoffTimer;
+    debugVars[11] = endOfPeriodTimer;
+    debugVars[12] = endOfPeriod;
+    debugVars[13] = frame;
+    debugVars[14] = fanExcitement;
+    debugVars[14] = awayFanExcitement;
+    debugVars[15] = angle;
+    debugVars[16] = aax;
+    debugVars[17] = aay;
+    debugVars[18] = bbx;
+    debugVars[19] = bby;
+    debugVars[20] = goalTimer;
+    debugVars[22] = ppx;
+    debugVars[23] = ppy;
+    debugVars[24] = px;
+    debugVars[25] = py;
+    debugVars[26] = agtx;
+    debugVars[27] = agty;
+    debugVars[28] = agx;
+    debugVars[29] = agy;
+    debugVars[30] = agpx;
+    debugVars[31] = agpy;
+    debugVars[32] = mouseX;
+    debugVars[33] = mouseY;
+    
+    
+    if(debugActive){
+        for(var i = 0; i < debugText.length; i++){
+            debugText[i].setText(debugPreText[i] + debugVars[i]);
+            if(i >= 14 && i <= 19){
+                debugText[i].setText(debugPreText[i] + debugVars[i].toFixed(2));
+            }
+            if(i >= 22 && i <= 31){
+                debugText[i].setText(debugPreText[i] + debugVars[i].toFixed(2));
+            }
+        }
+    }
+    
+}
+
+function addFans(){
+    for(var o = 0; o < 2; o++){
+        for(var i = 0; i < 25; i++){
+            var fan = new Circle(Randomizer.nextInt(13, 16));
+            var c = Randomizer.nextInt(0, 35);
+            if(c < 29){
+                fan.setColor(colors[teamTwoColor]);
+                isFanOfHomeTeam.push(true);
+            }else if(c < 33){
+                fan.setColor(colors[teamOneColor]);
+                isFanOfHomeTeam.push(false);
+            }else{
+                fan.setColor(Randomizer.nextColor());
+                isFanOfHomeTeam.push(true);
+            }
+            fan.setPosition((40 * i) + 20, (40 * o) + 24);
+            add(fan);
+            fans.push(fan);
+            fanState.push(false);
+            fanJumpFrame.push(-1000);
+            arenaStuff.push(fan);
+        }
+    }
+    
+    for(var o = 0; o < 2; o++){
+        for(var i = 0; i < 25; i++){
+            var fan = new Circle(Randomizer.nextInt(13, 16));
+            var c = Randomizer.nextInt(0, 35);
+            if(c < 29){
+                fan.setColor(colors[teamTwoColor]);
+                isFanOfHomeTeam.push(true);
+            }else if(c < 33){
+                fan.setColor(colors[teamOneColor]);
+                isFanOfHomeTeam.push(false);
+            }else{
+                fan.setColor(Randomizer.nextColor());
+                isFanOfHomeTeam.push(true);
+            }
+            fan.setPosition((40 * i) + 20, (40 * o) + arenaBottom + 85);
+            add(fan);
+            fans.push(fan);
+            fanState.push(false);
+            fanJumpFrame.push(-1000);
+            arenaStuff.push(fan);
+        }
+    }
+}
+
+function resetFans(){
+    for(var i = 0; i < fans.length; i++){
+        var fan = fans[i];
+        var c = Randomizer.nextInt(0, 35);
+        if(c < 29){
+            fan.setColor(colors[teamTwoColor]);
+            isFanOfHomeTeam.push(true);
+        }else if(c < 33){
+            fan.setColor(colors[teamOneColor]);
+            isFanOfHomeTeam.push(false);
+        }else{
+            fan.setColor(Randomizer.nextColor());
+            isFanOfHomeTeam.push(true);
+        }
+        if(fanState[i]){
+            fanState[i] = false;
+            fan.setPosition(fan.getX(), fan.getY() + 4);
+        }
+        fanJumpFrame[i] = -1000;
+    }
+}
+
+function updateFans(){
+    for(var i = 0; i < fans.length; i++){
+        if(fanState[i] == false){
+            if(isFanOfHomeTeam[i] && Randomizer.nextFloat(0, 100) <= fanExcitement){
+                fanState[i] = true;
+                fanJumpFrame[i] = frame;
+                fans[i].setPosition(fans[i].getX(), fans[i].getY() - 4);
+            }
+            if(!isFanOfHomeTeam[i] && Randomizer.nextFloat(0, 100) <= awayFanExcitement){
+                fanState[i] = true;
+                fanJumpFrame[i] = frame;
+                fans[i].setPosition(fans[i].getX(), fans[i].getY() - 4);
+            }
+        }else{
+            if(fanJumpFrame[i] + FRAMES_IN_AIR <= frame){
+                fanState[i] = false;
+                fans[i].setPosition(fans[i].getX(), fans[i].getY() + 4);
+            }
+        }
+        
+        if(period == 3){
+            if(teamOneScore >= teamTwoScore + 3 && !endOfPeriod && isFanOfHomeTeam[i]){
+                if(Randomizer.nextInt(1, (25001 + (teamOneScore - teamTwoScore + 3))) > 25000){
+                    remove(fans[i]);
+                }
+            }
+        }else{
+            if(teamOneScore >= teamTwoScore + 3 && !endOfPeriod && isFanOfHomeTeam[i]){
+                if(Randomizer.nextInt(1, (35001 + (teamOneScore - teamTwoScore + 3))) == 35000){
+                    remove(fans[i]);
+                }
+            }
+        }
+    }
+    if(frame - lastModifiedFanExcitement >= 2){
+        if(fanExcitement > DEFAULT_FAN_EXCITEMENT){
+            fanExcitement -= 0.055;
+        }
+        if(fanExcitement < DEFAULT_FAN_EXCITEMENT){
+            fanExcitement += 0.055;
+        }
+        if(awayFanExcitement > DEFAULT_FAN_EXCITEMENT){
+            awayFanExcitement -= 0.055;
+        }
+        if(awayFanExcitement < DEFAULT_FAN_EXCITEMENT){
+            awayFanExcitement += 0.055;
+        }
+        lastModifiedFanExcitement = frame;
+    }
+    
+    if(endOfPeriod){
+        fanExcitement = FAN_EXCITEMENT_INTERMISSION;
+        awayFanExcitement = FAN_EXCITEMENT_INTERMISSION;
+    }
+    
+}
+
+
+
+
+/**************************************************************
+
+
+MENU
+
+
+*************************************************************/
+
+var menuArr = [];
+var quickArr = [];
+var firstTournamentArr = [];
+var secondTournamentArr = [];
+
+
+function mainMenu(){
+    background = new Rectangle(width, height);
+    background.setColor("#222629");
+    add(background);
+    
+    title = new Text("Luk's Hockey", "100pt Comic Sans MS");
+    title.setPosition(width/2 - title.getWidth()/2, 180);
+    title.setColor("#C3073F");
+    add(title);
+    
+    /*
+    
+    
+    decorate menu
+    
+    
+    */
+    
+    quickGame = new Rectangle(180, 60);
+    quickGame.setPosition(width - quickGame.getWidth() - 28, height - quickGame.getHeight() - 170);
+    quickGame.setColor(buttonColor);
+    add(quickGame);
+    
+    sayQuickGame = new Text("Quick Game", "18pt Verdana");
+    centerText(sayQuickGame, quickGame);
+    sayQuickGame.setColor(white);
+    add(sayQuickGame);
+    
+    tournament = new Rectangle(180, 60);
+    tournament.setPosition(width - tournament.getWidth() - 28, height - tournament.getHeight() - 100);
+    tournament.setColor(buttonColor);
+    add(tournament);
+    
+    sayTournament = new Text("Tournament", "18pt Verdana");
+    centerText(sayTournament, tournament);
+    sayTournament.setColor(white);
+    add(sayTournament);
+    
+    controls = new Rectangle(180, 60);
+    controls.setPosition(width - controls.getWidth() - 28, height - controls.getHeight() - 30);
+    controls.setColor(buttonColor);
+    add(controls);
+    
+    sayControls = new Text("Controls", "18pt Verdana");
+    centerText(sayControls, controls);
+    sayControls.setColor(white);
+    add(sayControls);
+    
+    menuArr.push(quickGame);
+    menuArr.push(sayQuickGame);
+    menuArr.push(tournament);
+    menuArr.push(sayTournament);
+    menuArr.push(controls);
+    menuArr.push(sayControls);
+}
+var play;
+var sayPlay;
+var backFromQuick;
+var sayBackFromQuick;
+var border;
+var borderTwo;
+var teamOneNameRect;
+var sayTeamOneName;
+var teamTwoNameRect;
+var sayTeamTwoName;
+
+var colorText = new Text("Color", "20pt Verdana");
+var colorTextTwo = new Text("Color", "20pt Verdana");
+var sizeTextOne = new Text("Size", "20pt Verdana");
+var sizeTextTwo = new Text("Size", "20pt Verdana");
+
+var sizeSliderLineOne;
+var sizeSliderLineTwo;
+var sizeSliderOne;
+var sizeSliderTwo;
+
+var colorOptionsOne = [];
+var colorOptionsTwo = [];
+var colorOptionsThree = [];
+
+var menuPlayerOne;
+var menuPlayerTwo;
+
+var periodLength;
+var sayPeriodLength;
+var periodLengthTxt;
+var hForce;
+var sayhForce;
+var hForceTxt;
+var accMult;
+var sayAccMult;
+var accMultTxt;
+
+var drawedQuickPlay = false;
+
+function setupGame(){
+    removeMainMenu();
+    if(drawedQuickPlay){
+        for(var i = 0; i < quickArr.length; i++){
+            add(quickArr[i]);
+        }
+        return;
+    }
+    
+    
+    play = new Rectangle(180, 60);
+    play.setPosition(width - play.getWidth() - 28, height - play.getHeight() - 30);
+    play.setColor(buttonColor);
+    add(play);
+    
+    sayPlay = new Text("Play", "18pt Verdana");
+    centerText(sayPlay, play);
+    sayPlay.setColor(white);
+    add(sayPlay);
+    
+    border = new Line(0, play.getY() - 20, width, play.getY() - 20);
+    border.setLineWidth(6);
+    border.setColor(buttonColor);
+    add(border);
+    
+    borderTwo = new Line(width/2, 0, width/2, play.getY() - 20);
+    borderTwo.setLineWidth(6);
+    borderTwo.setColor(buttonColor);
+    add(borderTwo);
+    
+    menuPlayerOne = new Circle(54);
+    menuPlayerOne.setPosition(width/11.5, height/3);
+    menuPlayerOne.setColor(colors[0]);
+    add(menuPlayerOne);
+    
+    menuPlayerTwo = new Circle(54);
+    menuPlayerTwo.setPosition(width/11.5 * 10.5, height/3);
+    menuPlayerTwo.setColor(colors[teamTwoColor]);
+    add(menuPlayerTwo);
+    
+    
+    teamOneNameRect = new Rectangle(270, 60);
+    teamOneNameRect.setPosition(width/4 - teamOneNameRect.getWidth()/2, 30);
+    teamOneNameRect.setColor(buttonColor);
+    add(teamOneNameRect);
+    
+    sayTeamOneName = new Text("Team One Name", "18pt Verdana");
+    centerText(sayTeamOneName, teamOneNameRect);
+    sayTeamOneName.setColor(white);
+    add(sayTeamOneName);
+    
+    teamTwoNameRect = new Rectangle(270, 60);
+    teamTwoNameRect.setPosition(width/4 * 3 - teamTwoNameRect.getWidth()/2, 30);
+    teamTwoNameRect.setColor(buttonColor);
+    add(teamTwoNameRect);
+    
+    sayTeamTwoName = new Text("Team Two Name", "18pt Verdana");
+    centerText(sayTeamTwoName, teamTwoNameRect);
+    sayTeamTwoName.setColor(white);
+    add(sayTeamTwoName);
+    
+    var COLORS_PER_ROW = 5;
+    var COLOR_BOX_WIDTH = 35;
+    var GAP = 10;
+    
+    colorText.setPosition(width/3.15 - colorText.getWidth()/2, height/4.5);
+    add(colorText);
+    colorText.setColor(textColor);
+    addColorOptions(1, colorText, COLORS_PER_ROW, COLOR_BOX_WIDTH, GAP);
+    
+    colorTextTwo.setPosition(width - (width/3.15) - colorTextTwo.getWidth()/2, height/4.5);
+    add(colorTextTwo);
+    colorTextTwo.setColor(textColor);
+    addColorOptions(2, colorTextTwo, COLORS_PER_ROW, COLOR_BOX_WIDTH, GAP);
+    
+    sizeTextOne.setPosition(width/4 - sizeTextOne.getWidth()/2, height/1.85);
+    sizeTextOne.setColor(textColor);
+    add(sizeTextOne);
+    
+    sizeTextTwo.setPosition(width/4 * 3 - sizeTextTwo.getWidth()/2, height/1.85);
+    sizeTextTwo.setColor(textColor);
+    add(sizeTextTwo);
+    
+    sizeSliderLineOne = new Line(width/4 - 175, sizeTextOne.getY() + 35, width/4 + 175, sizeTextOne.getY() + 35);
+    sizeSliderLineOne.setLineWidth(5);
+    sizeSliderLineOne.setColor(colors[teamOneColor]);
+    add(sizeSliderLineOne);
+    
+    sizeSliderOne = new Rectangle(10, 30);
+    sizeSliderOne.setPosition(width/4 - 5, sizeSliderLineOne.getY() - 15);
+    sizeSliderOne.setColor(textColorThree);
+    add(sizeSliderOne);
+    
+    sizeSliderLineTwo = new Line(width/4 * 3 - 175, sizeTextOne.getY() + 35, width/4 * 3 + 175, sizeTextOne.getY() + 35);
+    sizeSliderLineTwo.setLineWidth(5);
+    sizeSliderLineTwo.setColor(colors[teamTwoColor]);
+    add(sizeSliderLineTwo);
+    
+    sizeSliderTwo = new Rectangle(10, 30);
+    sizeSliderTwo.setPosition(width/4 * 3 - 5, sizeSliderLineTwo.getY() - 15);
+    sizeSliderTwo.setColor(textColorThree);
+    add(sizeSliderTwo);
+    
+    periodLength = new Rectangle(65, 30);
+    periodLength.setPosition(width - periodLength.getWidth() - 240, height - periodLength.getHeight() - 60);
+    periodLength.setColor(buttonColor);
+    add(periodLength);
+    
+    sayPeriodLength = new Text("60s", "12pt Verdana");
+    sayPeriodLength.setPosition(periodLength.getX() + periodLength.getWidth()/2 - sayPeriodLength.getWidth()/2, periodLength.getY() + periodLength.getHeight()/2 + sayPeriodLength.getHeight()/4);
+    sayPeriodLength.setColor(white);
+    add(sayPeriodLength);
+    
+    periodLengthTxt = new Text("Period Length", "12pt Verdana");
+    periodLengthTxt.setPosition(periodLength.getX() - 10 - periodLengthTxt.getWidth(), periodLength.getY() + periodLength.getHeight()/2 + periodLengthTxt.getHeight()/4);
+    periodLengthTxt.setColor(textColorThree);
+    add(periodLengthTxt);
+    
+    hForce = new Rectangle(65, 30);
+    hForce.setPosition(width - hForce.getWidth() - 240, height - hForce.getHeight() - 20);
+    hForce.setColor(buttonColor);
+    add(hForce);
+    
+    sayhForce = new Text("1.0x", "12pt Verdana");
+    sayhForce.setPosition(hForce.getX() + hForce.getWidth()/2 - sayhForce.getWidth()/2, hForce.getY() + hForce.getHeight()/2 + sayhForce.getHeight()/4);
+    sayhForce.setColor(white);
+    add(sayhForce);
+    
+    hForceTxt = new Text("Hitting Force", "12pt Verdana");
+    hForceTxt.setPosition(hForce.getX() - 10 - hForceTxt.getWidth(), hForce.getY() + hForce.getHeight()/2 + hForceTxt.getHeight()/4);
+    hForceTxt.setColor(textColorThree);
+    add(hForceTxt);
+    
+    accMult = new Rectangle(65, 30);
+    accMult.setPosition(width - accMult.getWidth() - 460, height - accMult.getHeight() - 60);
+    accMult.setColor(buttonColor);
+    add(accMult);
+    
+    sayAccMult = new Text("1.0x", "12pt Verdana");
+    centerText(sayAccMult, accMult);
+    sayAccMult.setColor(white);
+    add(sayAccMult);
+    
+    accMultTxt = new Text("Acceleration", "12pt Verdana");
+    accMultTxt.setPosition(accMult.getX() - 10 - accMultTxt.getWidth(), accMult.getY() + accMult.getHeight()/2 + accMultTxt.getHeight()/4);
+    accMultTxt.setColor(textColorThree);
+    add(accMultTxt);
+    
+    backFromQuick = new Rectangle(180, 60);
+    backFromQuick.setPosition(28, height - backFromQuick.getHeight() - 30);
+    backFromQuick.setColor(buttonColor);
+    add(backFromQuick);
+    
+    sayBackFromQuick = new Text("Back", "18pt Verdana");
+    centerText(sayBackFromQuick, backFromQuick);
+    sayBackFromQuick.setColor(white);
+    add(sayBackFromQuick);
+    
+    drawedQuickPlay = true;
+    quickArr.push(play);
+    quickArr.push(sayPlay);
+    quickArr.push(border);
+    quickArr.push(borderTwo);
+    quickArr.push(menuPlayerOne);
+    quickArr.push(menuPlayerTwo);
+    quickArr.push(teamOneNameRect);
+    quickArr.push(sayTeamOneName);
+    quickArr.push(teamTwoNameRect);
+    quickArr.push(sayTeamTwoName);
+    quickArr.push(colorText);
+    quickArr.push(colorTextTwo);
+    quickArr.push(sizeTextOne);
+    quickArr.push(sizeTextTwo);
+    quickArr.push(sizeSliderLineOne);
+    quickArr.push(sizeSliderOne);
+    quickArr.push(sizeSliderLineTwo);
+    quickArr.push(sizeSliderTwo);
+    quickArr.push(periodLength);
+    quickArr.push(sayPeriodLength);
+    quickArr.push(periodLengthTxt);
+    quickArr.push(hForce);
+    quickArr.push(sayhForce);
+    quickArr.push(hForceTxt);
+    quickArr.push(accMult);
+    quickArr.push(sayAccMult);
+    quickArr.push(accMultTxt);
+    quickArr.push(backFromQuick);
+    quickArr.push(sayBackFromQuick);
+}
+
+function addColorOptions(team, txt, COLORS_PER_ROW, COLOR_BOX_WIDTH, GAP){
+    var tx = txt.getX() + txt.getWidth()/2;
+    var ty = txt.getY();
+    var ttx = 0;
+    var tty = 0;
+    
+    tx -= COLOR_BOX_WIDTH * (COLORS_PER_ROW/2);
+    tx -= GAP * COLORS_PER_ROW/2;
+    ty += GAP + 12;
+    
+    for(var i = 0; i < colors.length; i++){
+        var colorBox = new Rectangle(COLOR_BOX_WIDTH, COLOR_BOX_WIDTH);
+        colorBox.setPosition(tx + ttx, ty + tty);
+        colorBox.setColor(colors[i]);
+        add(colorBox);
+        
+        if(team == 1){
+            colorOptionsOne.push(colorBox);
+        }
+        if(team == 2){
+            colorOptionsTwo.push(colorBox);
+        }
+        if(team == 3){
+            nttColorOptions.push(colorBox);
+        }
+        ttx += GAP + COLOR_BOX_WIDTH;
+        if((i + 1) % COLORS_PER_ROW == 0){
+            ttx = 0;
+            tty += GAP + COLOR_BOX_WIDTH;
+        }
+        if(team != 3){
+            quickArr.push(colorBox);
+        }
+    }
+}
+
+function moveToGame(){
+    if(menu){
+        menu = false;
+        game = true;
+        
+        add(back);
+        add(ice);
+        if(!alreadyDrewArena){
+            addFans();
+            addScoreboard();
+            addBottomUI();
+            addCircle(getWidth()/6, 268);
+            addCircle(getWidth()/6, 532);
+            addCircle(getWidth()/6 * 5, 268);
+            addCircle(getWidth()/6 * 5, 532);
+            addLines();
+            addCenterCircle();
+            addPlayers();
+            addGoalies();
+            add(g);
+            drawIntermission();
+            alreadyDrewArena = true;
+        }else{
+            for(var i = 0; i < arenaStuff.length; i++){
+                add(arenaStuff[i]);
+            }
+            
+            playerOne.setColor(colors[teamOneColor]);
+            goalieOne.setColor(colors[teamOneColor]);
+            playerOne.setRadius(16 + teamOneSize);
+            playerTwo.setColor(colors[teamTwoColor]);
+            goalieTwo.setColor(colors[teamTwoColor]);
+            playerTwo.setRadius(16 + teamTwoSize);
+            
+            resetIntermission();
+            resetScoreboard();
+            resetFans();
+            addPotentialMessages();
+        }
+    }
+}
+
+function addMainMenu(){
+    for(var i = 0; i < menuArr.length; i++){
+        add(menuArr[i]);
+    }
+}
+
+function removeMainMenu(){
+    for(var i = 0; i < menuArr.length; i++){
+        remove(menuArr[i]);
+    }
+}
+
+function removeQuickGameMenu(){
+    for(var i = 0; i < quickArr.length; i++){
+        remove(quickArr[i]);
+    }
+}
+
+function removeTournamentsOne(){
+    for(var i = 0; i < firstTournamentArr.length; i++){
+        remove(firstTournamentArr[i]);
+    }
+}
+
+function removeNewTourneyTeamStuff(){
+    for(var i = 0; i < newTourneyTeamStuff.length; i++){
+        remove(newTourneyTeamStuff[i]);
+    }
+    for(var i = 0; i < nttColorOptions.length; i++){
+        remove(nttColorOptions[i]);
+    }
+}
+
+function changeTeamColor(t){
+    for(var i = 0; i < colors.length; i++){
+        if(clickElement == colorOptionsOne[i]){
+            if(teamTwoColor == i){
+                break;
+            }
+            menuPlayerOne.setColor(colors[i]);
+            sizeSliderLineOne.setColor(colors[i]);
+            teamOneColor = i;
+            break;
+        }
+    }
+    
+    for(var i = 0; i < colors.length; i++){
+        if(clickElement == colorOptionsTwo[i]){
+            if(teamOneColor == i){
+                break;
+            }
+            menuPlayerTwo.setColor(colors[i]);
+            sizeSliderLineTwo.setColor(colors[i]);
+            teamTwoColor = i;
+            break;
+        }
+    }
+    
+    for(var i = 0; i < colors.length; i++){
+        if(clickElement == nttColorOptions[i]){
+            var available = true;
+            for(var l = 0; l < tourneyColorsSelected.length; l++){
+                if(i == tourneyColorsSelected[l]){
+                    available = false;
+                }
+            }
+            if(!available){
+                break;
+            }
+            var oldColorsArray = tourneyColorsSelected;
+            var oldLength = tourneyColorsSelected.length;
+            tourneyColorsSelected = [];
+            for(var l = 0; l < oldLength; l++){
+                if(oldColorsArray[l] != nttColor){
+                    tourneyColorsSelected.push(oldColorsArray[l]);
+                }
+            }
+            tourneyColorsSelected.push(i);
+            nttPlayer.setColor(colors[i]);
+            nttSizeSliderLine.setColor(colors[i]);
+            nttColor = i;
+            nttPushedColor = true;
+            break;
+        }
+    }
+}
+
+function changeTeamName(t, err){
+    if(t == 1){
+        if(err == 0){
+            teamOneName = readLine("Enter Team 1 name:");
+        }
+        if(err == 1){
+            teamOneName = readLine("Team name must be more than 2 characters. Enter Team 1 name:");
+        }
+        if(err == 2){
+            teamOneName = readLine("Team name must be less than 17 characters. Enter Team 1 name:");
+        }
+        if(teamOneName == null){
+            teamOneName = "Team One";
+            sayTeamOneName.setText("Team One Name");
+            sayTeamOneName.setPosition(teamOneNameRect.getX() + teamOneNameRect.getWidth()/2 - sayTeamOneName.getWidth()/2, teamOneNameRect.getY() + teamOneNameRect.getHeight()/2 + sayTeamOneName.getHeight()/4);                                                                                               //
+            return;
+        }
+        if(teamOneName.length >= 17){
+            changeTeamName(t, 2);
+        }
+        if(teamOneName.length < 3){
+            changeTeamName(t, 1);
+        }
+        sayTeamOneName.setText(teamOneName);
+        sayTeamOneName.setPosition(teamOneNameRect.getX() + teamOneNameRect.getWidth()/2 - sayTeamOneName.getWidth()/2, teamOneNameRect.getY() + teamOneNameRect.getHeight()/2 + sayTeamOneName.getHeight()/4);                                                                                               //
+    }else if (t == 2){
+        if(err == 0){
+            teamTwoName = readLine("Enter Team 2 name:");
+        }
+        if(err == 1){
+            teamTwoName = readLine("Team name must be more than 2 characters. Enter Team 2 name:");
+        }
+        if(err == 2){
+            teamTwoName = readLine("Team name must be less than 17 characters. Enter Team 2 name:");
+        }
+        if(teamTwoName == null){
+            teamTwoName = "Team Two";
+            sayTeamTwoName.setText("Team Two Name");
+            sayTeamTwoName.setPosition(teamTwoNameRect.getX() + teamTwoNameRect.getWidth()/2 - sayTeamTwoName.getWidth()/2, teamTwoNameRect.getY() + teamTwoNameRect.getHeight()/2 + sayTeamTwoName.getHeight()/4);                                                                                               //
+            return;
+        }
+        if(teamTwoName.length >= 17){
+            changeTeamName(t, 2);
+        }
+        if(teamTwoName.length < 3){
+            changeTeamName(t, 1);
+        }
+        sayTeamTwoName.setText(teamTwoName);
+        sayTeamTwoName.setPosition(teamTwoNameRect.getX() + teamTwoNameRect.getWidth()/2 - sayTeamTwoName.getWidth()/2, teamTwoNameRect.getY() + teamTwoNameRect.getHeight()/2 + sayTeamTwoName.getHeight()/4);                                                                                               //
+    
+    }else if (t == 3){
+        if(err == 0){
+            nttName = readLine("Enter new team name:");
+        }
+        if(err == 1){
+            nttName = readLine("Team name must be more than 2 characters. Enter new team name:");
+        }
+        if(err == 2){
+            nttName = readLine("Team name must be less than 17 characters. Enter new team name:");
+        }
+        if(err == 3){
+            nttName = readLine("That name has been selected. Enter new team name:");
+        }
+        
+        for(var i = 0; i < tourneyNamesSelected.length; i++){
+            if(nttName === tourneyNamesSelected[i]){
+                changeTeamName(t, 3);
+                break;
+            }
+        }
+        
+        var oldNamesArray = tourneyNamesSelected;
+        var oldLength = tourneyNamesSelected.length;
+        tourneyNamesSelected = [];
+        for(var i = 0; i < oldLength; i++){
+            if(!oldNamesArray[i] === nttName){
+                tourneyNamesSelected.push(oldNamesArray[i]);
+            }
+        }
+        
+        //tourneyNamesSelected
+        if(nttName == null){
+            nttName = "New Team " + Randomizer.nextInt(1, 99);
+            nttSayName.setText(nttName);
+            centerText(nttSayName, nttNameRect);
+            return;
+        }
+        if(nttName.length >= 17){
+            changeTeamName(t, 2);
+        }
+        if(nttName.length < 3){
+            changeTeamName(t, 1);
+        }
+        nttPushedName = true;
+        nttSayName.setText(nttName);
+        centerText(nttSayName, nttNameRect);
+    }
+}
+
+function timeButtonPress(){
+    timePerPeriodI++;
+    if(timePerPeriodI == potentialTimePerPeriod.length){
+        timePerPeriodI = 0;
+    }
+    
+    timePerPeriod = potentialTimePerPeriod[timePerPeriodI];
+    
+    sayPeriodLength.setText(timePerPeriod + "s");
+    sayPeriodLength.setPosition(periodLength.getX() + periodLength.getWidth()/2 - sayPeriodLength.getWidth()/2, periodLength.getY() + periodLength.getHeight()/2 + sayPeriodLength.getHeight()/4);
+}
+
+function hittingButtonPress(){
+    collisionForceI++;
+    if(collisionForceI == potentialCollisionForce.length){
+        collisionForceI = 0;
+    }
+    
+    collisionForce = potentialCollisionForce[collisionForceI];
+    
+    if(collisionForce % 1 == 0){
+         sayhForce.setText(collisionForce + ".0x");
+    }else{
+        sayhForce.setText(collisionForce + "x");
+    }
+    sayhForce.setPosition(hForce.getX() + hForce.getWidth()/2 - sayhForce.getWidth()/2, hForce.getY() + hForce.getHeight()/2 + sayhForce.getHeight()/4);
+}
+
+function accelerationButtonPress(){
+    accelerationI++;
+    if(accelerationI == accelerations.length){
+        accelerationI = 0;
+    }
+    
+    acceleration = accelerations[accelerationI];
+    
+    if(acceleration % 1 == 0){
+         sayAccMult.setText(acceleration + ".0x");
+    }else{
+        sayAccMult.setText(acceleration + "x");
+    }
+    centerText(sayAccMult, accMult);
+}
+
+function backToMain(){
+    removeQuickGameMenu();
+    removeTournamentsOne();
+    addMainMenu();
+}
+
+
+
+/**************************************************************
+
+
+TOURNAMENTS
+
+
+*************************************************************/
+
+var teamsEdited = 0;
+var teamOneIndex = 0;
+var teamTwoIndex = 0;
+
+/*
+1                                                   9
+2      21                                   29     10
+ 
+3      23                                   31     11
+4                                                  12 
+               41                     49             
+                       61     69               
+               45                     53           
+5                                                  13
+6      25                                   33     14
+
+7      27                                   35     15
+8                                                  16
+*/
+
+var newTourney;
+var sayNewTourney;
+var loadTourney;
+var sayLoadTourney;
+var backFromTourneysOne;
+var sayBackFromTourneysOne;
+var drawedNewTourneyTeamStuff = false;
+var drawedTournamentsOne = false;
+var changingnttSize = false;
+var nttPushedColor = false;
+var nttPushedName = false;
+
+var playTourneyGame = new Rectangle(120, 24);
+var sayPlayTourneyGame = new Text("Play", "14.5pt Verdana");
+sayPlayTourneyGame.setColor(white);
+centerText(sayPlayTourneyGame, playTourneyGame);
+
+var gameOptionsAdded = false;
+var simTourneyGame = new Rectangle(120, 24);
+var saySimTourneyGame = new Text("Simulate", "14.5pt Verdana");
+saySimTourneyGame.setColor(white);
+centerText(saySimTourneyGame, simTourneyGame);
+
+var nttName = "";
+var nttColor = 0;
+var nttSize = 2;
+var nttSpeed = 0;
+var nttPosition = 0;
+
+var nttIndex = 0;
+var nttBackBack;
+var nttBack;
+var nttPlayer;
+var nttNameRect;
+var nttSayName;
+var nttColorText;
+var nttSizeText;
+var nttSizeSliderLine;
+var nttSizeSlider;
+var nttConfirm;
+var nttSayConfirm;
+var nttColorText = new Text("Color", "20pt Verdana");
+var nttSizeText = new Text("Size", "20pt Verdana");
+var nttColorOptions = [];
+
+function firstTournamentButton(){
+    removeMainMenu();
+    if(drawedTournamentsOne){
+        for(var i = 0; i < firstTournamentArr.length; i++){
+            add(firstTournamentArr[i]);
+        }
+    }
+    
+    newTourney = new Rectangle(180, 60);
+    newTourney.setPosition(width - newTourney.getWidth() - 28, height - newTourney.getHeight() - 170);
+    newTourney.setColor(buttonColor);
+    add(newTourney);
+    
+    sayNewTourney = new Text("New Tournament", "14.5pt Verdana");
+    centerText(sayNewTourney, newTourney);
+    sayNewTourney.setColor(white);
+    add(sayNewTourney);
+    
+    loadTourney = new Rectangle(180, 60);
+    loadTourney.setPosition(width - loadTourney.getWidth() - 28, height - loadTourney.getHeight() - 100);
+    loadTourney.setColor(buttonColor);
+    add(loadTourney);
+    
+    sayLoadTourney = new Text("Load Tournament", "14.5pt Verdana");
+    centerText(sayLoadTourney, loadTourney);
+    sayLoadTourney.setColor(white);
+    add(sayLoadTourney);
+    
+    backFromTourneysOne = new Rectangle(180, 60);
+    backFromTourneysOne.setPosition(width - backFromTourneysOne.getWidth() - 28, height - backFromTourneysOne.getHeight() - 30);
+    backFromTourneysOne.setColor(buttonColor);
+    add(backFromTourneysOne);
+    
+    sayBackFromTourneysOne = new Text("Back", "18pt Verdana");
+    centerText(sayBackFromTourneysOne, backFromTourneysOne);
+    sayBackFromTourneysOne.setColor(white);
+    add(sayBackFromTourneysOne);
+    
+    drawedTournamentsOne = true;
+    firstTournamentArr.push(newTourney);
+    firstTournamentArr.push(sayNewTourney);
+    firstTournamentArr.push(loadTourney);
+    firstTournamentArr.push(sayLoadTourney);
+    firstTournamentArr.push(sayTournament);
+    firstTournamentArr.push(backFromTourneysOne);
+    firstTournamentArr.push(sayBackFromTourneysOne);
+}
+
+var tournamentGames = []; //array of arrays of bracket
+var tournamentColorBoxes = []; //color bar on brackets
+var editableTournamentTeams = []; //bar behind name on brackets (gets removed, only for creating tournament)
+var editableText = []; //team name on brackets (gets removed, only for creating tournament)
+var barIndexArray = []; //bar behind name on brackets
+var txtIndexArray = []; //team name on brackets
+var newTourneyTeamStuff = []; //new tournament team options
+var addingNewTourneyTeam = false;
+
+function newTournament(){
+    editingTourney = true;
+    removeTournamentsOne();
+    remove(title);
+    
+    drawBracket(16);
+}
+
+function addNewTourneyTeam(box, index){
+    addingNewTourneyTeam = true;
+    nttIndex = index;
+    
+    nttName = "New Team " + Randomizer.nextInt(1, 99);
+    for(var i = 0; i < barIndexArray.length; i++){
+        if(barIndexArray[i] == box){
+            nttPosition = i;
+            break;
+        }
+    }
+    
+    drawNewTourneyTeamStuff();
+}
+
+function finishNewTourneyTeam(){
+    addingNewTourneyTeam = false;
+    if(!nttPushedColor){
+        tourneyColorsSelected.push(nttColor);
+    }
+    if(!nttPushedName){
+        tourneyNamesSelected.push(nttName);
+    }
+    nttPushedColor = false;
+    nttPushedName = false;
+    removeNewTourneyTeamStuff();
+    
+    tournamentTeamNames[nttPosition] = nttName;
+    tournamentTeamSizes[nttPosition] = nttSize;
+    tournamentTeamColors[nttPosition] = nttColor;
+    
+    txtIndexArray[nttIndex].setText(nttName);
+    tournamentColorBoxes[nttPosition].setColor(colors[nttColor]);
+    centerText(txtIndexArray[nttPosition], barIndexArray[nttPosition]);
+    
+    teamsEdited++;
+    if(teamsEdited == 16){
+        finishEditingTournamentTeams();
+    }
+}
+
+function finishEditingTournamentTeams(){
+    editingTourney = false;
+    tourney = true; //stays true even during tourney games
+}
+
+
+
+function drawBracket(_teams){
+    if(_teams == 16){
+        drawSinglePart(40, 20, "Click To Add Team", "Click To Add Team", true, true, 1, 2);
+        drawSinglePart(40, 264, "Click To Add Team", "Click To Add Team", true, true, 3, 4);
+        drawSinglePart(40, 386, "Click To Add Team", "Click To Add Team", true, true, 5, 6);
+        drawSinglePart(40, 630, "Click To Add Team", "Click To Add Team", true, true, 7, 8);
+        drawSinglePart(width - 240, 20, "Click To Add Team", "Click To Add Team", false, true, 9, 10);
+        drawSinglePart(width - 240, 264, "Click To Add Team", "Click To Add Team", false, true, 11, 12);
+        drawSinglePart(width - 240, 386, "Click To Add Team", "Click To Add Team", false, true, 13, 14);
+        drawSinglePart(width - 240, 630, "Click To Add Team", "Click To Add Team", false, true, 15, 16);
+        drawSinglePart(180, 142, "", "", true, false, 21, 23);
+        drawSinglePart(180, 508, "", "", true, false, 25, 27);
+        drawSinglePart(width - 380, 142, "", "", false, false, 29, 31);
+        drawSinglePart(width - 380, 508, "", "", false, false, 33, 35);
+        drawSinglePart(260, 325, "", "", true, false, 41, 45);
+        drawSinglePart(width - 460, 325, "", "", false, false, 49, 53);
+    }
+}
+
+function drawSinglePart(x, y, nOne, nTwo, dir, addToArray, posOne, posTwo){
+    var xOne = 0;
+    var xTwo = 0;
+    var xThree = 0;
+    var xFour = 0;
+    if(dir == true){
+        xOne = x + 2;
+        xTwo = x + 158;
+        xThree = xOne;
+        xFour = xOne + 4;
+    }
+    if(dir == false){
+        xOne = x + 44;
+        xTwo = x + 2;
+        xThree = xOne + 150;
+        xFour = xOne;
+    }
+    var backOfBrack = new Rectangle(200, 90);
+    backOfBrack.setPosition(x, y);
+    add(backOfBrack);
+    var barOne = new Rectangle(150, 42);
+    barOne.setPosition(xFour, y + 2);
+    barOne.setColor(buttonColor);
+    add(barOne);
+    var colorBar = new Rectangle(4, 42);
+    colorBar.setPosition(xThree, y + 2);
+    colorBar.setColor("#7c7e82");
+    add(colorBar);
+    var TeamOneNameTextOnBar = new Text(nOne, "12pt Verdana");
+    centerText(TeamOneNameTextOnBar, barOne);
+    TeamOneNameTextOnBar.setColor(white);
+    add(TeamOneNameTextOnBar);
+    var barThree = new Rectangle(40, 42);
+    barThree.setPosition(xTwo, y + 2);
+    barThree.setColor(buttonColor);
+    add(barThree);
+    var winsText = new Text("0", "22pt Myriad Pro");
+    centerText(winsText, barThree);
+    winsText.setColor(white);
+    add(winsText);
+    var barTwo = new Rectangle(150, 42);
+    barTwo.setPosition(xFour, y + 46);
+    barTwo.setColor(buttonColor);
+    add(barTwo);
+    var colorBarTwo = new Rectangle(4, 42);
+    colorBarTwo.setPosition(xThree, y + 46);
+    colorBarTwo.setColor("#7c7e82");
+    add(colorBarTwo);
+    var TeamTwoNameTextOnBar = new Text(nTwo, "12pt Verdana");
+    centerText(TeamTwoNameTextOnBar, barTwo);
+    TeamTwoNameTextOnBar.setColor(white);
+    add(TeamTwoNameTextOnBar);
+    var barFour = new Rectangle(40, 42);
+    barFour.setPosition(xTwo, y + 46);
+    barFour.setColor(buttonColor);
+    add(barFour);
+    var winsTextTwo = new Text("0", "22pt Myriad Pro");
+    centerText(winsTextTwo, barFour);
+    winsTextTwo.setColor(white);
+    add(winsTextTwo);
+    
+    var arr = [];
+    arr.push(backOfBrack);
+    arr.push(barOne);
+    arr.push(colorBar);
+    arr.push(TeamOneNameTextOnBar);
+    arr.push(barThree);
+    arr.push(winsText);
+    arr.push(barTwo);
+    arr.push(colorBarTwo);
+    arr.push(TeamTwoNameTextOnBar);
+    arr.push(barFour);
+    arr.push(winsTextTwo);
+    tournamentGames.push(arr);
+    tournamentColorBoxes[posOne] = colorBar;
+    tournamentColorBoxes[posTwo] = colorBarTwo;
+    barIndexArray[posOne] = barOne;
+    barIndexArray[posTwo] = barTwo;
+    txtIndexArray[posOne] = TeamOneNameTextOnBar;
+    txtIndexArray[posTwo] = TeamTwoNameTextOnBar;
+    
+    if(addToArray){
+        editableTournamentTeams[posOne] = barOne;
+        editableTournamentTeams[posTwo] = barTwo;
+        editableText[posOne] = TeamOneNameTextOnBar;
+        editableText[posTwo] = TeamTwoNameTextOnBar;
+    }
+}
+
+function drawNewTourneyTeamStuff(){
+    //ntt = new Tourney Team
+    if(drawedNewTourneyTeamStuff){
+        for(var i = 0; i < newTourneyTeamStuff.length; i++){
+            add(newTourneyTeamStuff[i]);
+        }
+        for(var i = 0; i < nttColorOptions.length; i++){
+            add(nttColorOptions[i]);
+        }
+        
+        nttSayName.setText("New Team Name");
+        centerText(nttSayName, nttNameRect);
+        for(var i = 0; i < colors.length; i++){
+            var available = true;
+            for(var l = 0; l < tourneyColorsSelected.length; l++){
+                if(i == tourneyColorsSelected[l]){
+                    available = false;
+                    break;
+                }
+            }
+            if(available){
+                nttColor = i;
+                nttPlayer.setColor(colors[i]);
+                nttSizeSliderLine.setColor(colors[i]);
+                break;
+            }
+        }
+        nttSizeSlider.setPosition(width/2 - 5, nttSizeSliderLine.getY() - 15);
+        nttSize = 2;
+        nttSpeed = speedDenominator + (4 * (4 - nttSize));
+        return;
+    }
+    
+    nttBackBack = new Rectangle(width/2 + 5, height - 162.5);
+    nttBackBack.setPosition(width/4 - 2.5, 0);
+    add(nttBackBack);
+    
+    nttBack = new Rectangle(width/2, height - 165);
+    nttBack.setPosition(width/4, 0);
+    nttBack.setColor(background.getColor());
+    add(nttBack);
+    
+    nttPlayer = new Circle(54);
+    nttPlayer.setPosition(width/3, height/3);
+    nttPlayer.setColor(colors[0]);
+    add(nttPlayer);
+    
+    nttNameRect = new Rectangle(270, 60);
+    nttNameRect.setPosition(width/2 - nttNameRect.getWidth()/2, 30);
+    nttNameRect.setColor(buttonColor);
+    add(nttNameRect);
+    
+    nttSayName = new Text("New Team Name", "18pt Verdana");
+    centerText(nttSayName, nttNameRect);
+    nttSayName.setColor(white);
+    add(nttSayName);
+    
+    var COLORS_PER_ROW = 5;
+    var COLOR_BOX_WIDTH = 40;
+    var GAP = 10;
+    
+    nttColorText.setPosition(width/2 - nttColorText.getWidth()/2 + 80, height/4.5);
+    add(nttColorText);
+    nttColorText.setColor(textColor);
+    addColorOptions(3, nttColorText, COLORS_PER_ROW, COLOR_BOX_WIDTH, GAP);
+
+    nttSizeText.setPosition(width/2 - nttSizeText.getWidth()/2, height/1.85);
+    nttSizeText.setColor(textColor);
+    add(nttSizeText);
+    
+    nttSizeSliderLine = new Line(width/2 - 175, nttSizeText.getY() + 35, width/2 + 175, nttSizeText.getY() + 35);
+    nttSizeSliderLine.setLineWidth(5);
+    nttSizeSliderLine.setColor(colors[teamOneColor]);
+    add(nttSizeSliderLine);
+    
+    nttSizeSlider = new Rectangle(10, 30);
+    nttSizeSlider.setPosition(width/2 - 5, nttSizeSliderLine.getY() - 15);
+    nttSizeSlider.setColor(textColorThree);
+    add(nttSizeSlider);
+    
+    nttConfirm = new Rectangle(270, 60);
+    nttConfirm.setPosition(width/2 - nttConfirm.getWidth()/2, 538);
+    nttConfirm.setColor(buttonColor);
+    add(nttConfirm);
+    
+    nttSayConfirm = new Text("Confirm", "18pt Verdana");
+    centerText(nttSayConfirm, nttConfirm);
+    nttSayConfirm.setColor(white);
+    add(nttSayConfirm);
+    
+    drawedNewTourneyTeamStuff = true;
+    
+    newTourneyTeamStuff.push(nttBackBack);
+    newTourneyTeamStuff.push(nttBack);
+    newTourneyTeamStuff.push(nttPlayer);
+    newTourneyTeamStuff.push(nttNameRect);
+    newTourneyTeamStuff.push(nttSayName);
+    newTourneyTeamStuff.push(nttColorText);
+    newTourneyTeamStuff.push(nttSizeText);
+    newTourneyTeamStuff.push(nttSizeSliderLine);
+    newTourneyTeamStuff.push(nttSizeSlider);
+    newTourneyTeamStuff.push(nttConfirm);
+    newTourneyTeamStuff.push(nttSayConfirm);
+}
+
+
+
+
+
+/**************************************************************
+
+
+INPUT
+
+
+*************************************************************/
+
+var hoverElement = null;
+var highlightBox = null;
+var hoveringOverABox = false;
+var hoveredOverTourneyBox = false;
+
+function mouseMove(e){
+    mouseX = e.getX();
+    mouseY = e.getY();
+    
+    if(hoveredOverTourneyBox){
+        hoverElement.setColor(buttonColor);
+    }
+    hoveredOverTourneyBox = false;
+    
+    hoverElement = getElementAt(e.getX(), e.getY());
+    
+    if(menu){
+        if(changingTeamOneSize){
+            sizeSliderOne.setPosition(mouseX, sizeSliderOne.getY());
+            if(sizeSliderOne.getX() > width/4 + 170){
+                sizeSliderOne.setPosition(width/4 + 170, sizeSliderOne.getY());
+            }
+            if(sizeSliderOne.getX() < width/4 - 180){
+                sizeSliderOne.setPosition(width/4 - 180, sizeSliderOne.getY());
+                changingTeamOneSize = false;
+            }
+            teamOneSize = 4 * (sizeSliderOne.getX() - (width/4 - 180))/((width/4 + 170) - (width/4 - 180));
+            aSpeed = speedDenominator + (4 * (4 - teamOneSize));
+            menuPlayerOne.setRadius((16 + teamOneSize) * 3);
+        }
+        if(changingTeamTwoSize){
+            sizeSliderTwo.setPosition(mouseX, sizeSliderTwo.getY());
+            if(sizeSliderTwo.getX() > width/4 * 3 + 170){
+                sizeSliderTwo.setPosition(width/4 * 3 + 170, sizeSliderTwo.getY());
+                changingTeamTwoSize = false;
+            }
+            if(sizeSliderTwo.getX() < width/4 * 3 - 180){
+                sizeSliderTwo.setPosition(width/4 * 3 - 180, sizeSliderTwo.getY());
+            }
+            teamTwoSize = 4 * (sizeSliderTwo.getX() - (width/4 * 3 - 180))/((width/4 * 3 + 170) - (width/4 * 3 - 180));
+            bSpeed = speedDenominator + (4 * (4 - teamTwoSize));
+            menuPlayerTwo.setRadius((16 + teamTwoSize) * 3);
+        }
+        if(changingnttSize){
+            nttSizeSlider.setPosition(mouseX, nttSizeSlider.getY());
+            if(nttSizeSlider.getX() > width/2 + 170){
+                nttSizeSlider.setPosition(width/2 + 170, nttSizeSlider.getY());
+            }
+            if(nttSizeSlider.getX() < width/2 - 180){
+                nttSizeSlider.setPosition(width/2 - 180, nttSizeSlider.getY());
+            }
+            nttSize = 4 * (nttSizeSlider.getX() - (width/2 - 180))/((width/2 + 170) - (width/2 - 180));
+            nttSpeed = speedDenominator + (4 * (4 - nttSize));
+            nttPlayer.setRadius((16 + nttSize) * 3);
+        }
+        
+        if(hoverElement != null) {
+            for(var i = 0; i < colors.length; i++){
+                if(hoverElement == colorOptionsOne[i]){
+                    newHover(colorOptionsOne[i], null);
+                }
+            }
+            
+            for(var i = 0; i < colors.length; i++){
+                if(hoverElement == colorOptionsTwo[i]){
+                    newHover(colorOptionsTwo[i], null);
+                }
+            }
+            
+            if(hoverElement == teamOneNameRect || hoverElement == sayTeamOneName){
+                newHover(teamOneNameRect, sayTeamOneName);
+            }
+            if(hoverElement == teamTwoNameRect || hoverElement == sayTeamTwoName){
+                newHover(teamTwoNameRect, sayTeamTwoName);
+            }
+            
+            if(hoverElement == sizeSliderOne){
+                newHover(sizeSliderOne, null);
+            }
+            if(hoverElement == sizeSliderTwo){
+                newHover(sizeSliderTwo, null);
+            }
+            
+            if(hoverElement == play || hoverElement == sayPlay){
+                newHover(play, sayPlay);
+            }
+            if(hoverElement == backFromQuick || hoverElement == sayBackFromQuick){
+                newHover(backFromQuick, sayBackFromQuick);
+            }
+            if(hoverElement == hForce || hoverElement == sayhForce){
+                newHover(hForce, sayhForce);
+            }
+            if(hoverElement == accMult || hoverElement == sayAccMult){
+                newHover(accMult, sayAccMult);
+            }
+            if(hoverElement == periodLength || hoverElement == sayPeriodLength){
+                newHover(periodLength, sayPeriodLength);
+            }
+            
+            if(hoverElement == quickGame || hoverElement == sayQuickGame){
+                newHover(quickGame, sayQuickGame);
+            }
+            if(hoverElement == tournament || hoverElement == sayTournament){
+                newHover(tournament, sayTournament);
+            }
+            if(hoverElement == controls || hoverElement == sayControls){
+                newHover(controls, sayControls);
+            }
+            
+            if(hoverElement == newTourney || hoverElement == sayNewTourney){
+                newHover(newTourney, sayNewTourney);
+            }
+            if(hoverElement == loadTourney || hoverElement == sayLoadTourney){
+                newHover(loadTourney, sayLoadTourney);
+            }
+            if(hoverElement == backFromTourneysOne || hoverElement == sayBackFromTourneysOne){
+                newHover(backFromTourneysOne, sayBackFromTourneysOne);
+            }
+            
+            if(editingTourney){
+                
+                if(!addingNewTourneyTeam){
+                    for(var i = 0; i < editableTournamentTeams.length; i++){
+                        if(hoverElement == editableTournamentTeams[i] || hoverElement == editableText[i]){
+                            hoveredOverTourneyBox = true;
+                            hoverElement = editableTournamentTeams[i];
+                            hoverElement.setColor(textColorTwo);
+                        }
+                    }
+                }else{
+                    for(var i = 0; i < colors.length; i++){
+                        if(hoverElement == nttColorOptions[i]){
+                            newHover(nttColorOptions[i], null);
+                        }
+                    }
+                    
+                    if(hoverElement == nttSizeSlider){
+                        newHover(nttSizeSlider, null);
+                    }
+                    if(hoverElement == nttNameRect || hoverElement == nttSayName){
+                        newHover(nttNameRect, nttSayName);
+                    }
+                    if(hoverElement == nttConfirm || hoverElement == nttSayConfirm){
+                        newHover(nttConfirm, nttSayConfirm);
+                    }
+                }
+            }
+            
+            if(tourney){
+                for(var i = 0; i < tournamentGames.length; i++){
+                    var arr = tournamentGames[i];
+                    for(var l = 0; l < arr.length; l++){
+                        if(hoverElement == arr[l]){
+                            hoveringOverABox = true;
+                            if(highlightBox != null){
+                                remove(highlightBox);
+                            }
+                            highlightBox = new Rectangle(arr[0].getWidth() + 2, arr[0].getHeight() + 2);
+                            highlightBox.setPosition(arr[0].getX() - 1, arr[0].getY() - 1);
+                            highlightBox.setColor(Color.WHITE);
+                            add(highlightBox);
+                            for(var c = 0; c < arr.length; c++){
+                                remove(arr[c]);
+                                add(arr[c]);
+                                if(gameOptionsAdded){
+                                    remove(playTourneyGame);
+                                    remove(sayPlayTourneyGame);
+                                    remove(simTourneyGame);
+                                    remove(saySimTourneyGame);
+                                    add(playTourneyGame);
+                                    add(sayPlayTourneyGame);
+                                    add(simTourneyGame);
+                                    add(saySimTourneyGame);
+                                }
+                            }
+                        }
+                    }
+                }
+                
+                if(hoverElement == playTourneyGame || hoverElement == sayPlayTourneyGame){
+                    playTourneyGame.setColor("#1f2021");
+                }else{
+                    playTourneyGame.setColor(Color.BLACK);
+                }
+                
+                if(hoverElement == simTourneyGame || hoverElement == saySimTourneyGame){
+                    simTourneyGame.setColor("#1f2021");
+                }else{
+                    simTourneyGame.setColor(Color.BLACK);
+                }
+            }
+        }
+        
+        if(!hoveringOverABox){
+            if(highlightBox != null){
+                remove(highlightBox);
+            }
+        }
+        
+        hoveringOverABox = false;
+    }
+}
+
+function newHover(elem, txt){
+    if(highlightBox != null){
+        remove(highlightBox);
+    }
+    hoveringOverABox = true;
+    highlightBox = new Rectangle(elem.getWidth() + 4, elem.getHeight() + 4);
+    highlightBox.setPosition(elem.getX() - 2, elem.getY() - 2);
+    add(highlightBox);
+    remove(elem);
+    add(elem);
+    if(txt != null){
+        remove(txt);
+        add(txt);
+    }
+}
+
+function mouseDown(e){
+    clickElement = getElementAt(e.getX(), e.getY());
+    
+    if(menu){
+        if(clickElement == quickGame || clickElement == sayQuickGame){
+            setupGame();
+            remove(title);
+            remove(highlightBox);
+        }
+        if(clickElement == play || clickElement == sayPlay){
+            moveToGame();
+            remove(highlightBox);
+        }
+        if(clickElement == backFromQuick || clickElement == sayBackFromQuick){
+            backToMain();
+            add(title);
+            remove(highlightBox);
+        }
+        if(clickElement == tournament || clickElement == sayTournament){
+            firstTournamentButton();
+            remove(highlightBox);
+        }
+        if(clickElement == teamOneNameRect || clickElement == sayTeamOneName){
+            changeTeamName(1, 0);
+        }
+        if(clickElement == teamTwoNameRect || clickElement == sayTeamTwoName){
+            changeTeamName(2, 0);
+        }
+        
+        if(clickElement == sizeSliderOne){
+            changingTeamOneSize = true;
+        }
+        if(clickElement == sizeSliderTwo){
+            changingTeamTwoSize = true;
+        }
+        if(clickElement == nttSizeSlider){
+            changingnttSize = true;
+        }
+        
+        changeTeamColor();
+        
+        if(clickElement == periodLength || clickElement == sayPeriodLength){
+            timeButtonPress();
+        }
+        if(clickElement == hForce || clickElement == sayhForce){
+            hittingButtonPress();
+        }
+        if(clickElement == accMult || clickElement == sayAccMult){
+            accelerationButtonPress();
+        }
+        
+        
+        if(clickElement == newTourney || clickElement == sayNewTourney){
+            newTournament();
+            remove(highlightBox);
+        }
+        if(clickElement == loadTourney || clickElement == sayLoadTourney){
+            //newHover(loadTourney, sayLoadTourney);
+        }
+        if(clickElement == backFromTourneysOne || clickElement == sayBackFromTourneysOne){
+            backToMain();
+            remove(highlightBox);
+        }
+        
+        if(editingTourney){
+            if(clickElement == nttNameRect || clickElement == nttSayName){
+                changeTeamName(3, 0);
+            }
+            
+            if(clickElement == nttConfirm || clickElement == nttSayConfirm){
+                finishNewTourneyTeam();
+                remove(highlightBox);
+            }
+            
+            for(var i = 0; i < editableTournamentTeams.length; i++){
+                if(clickElement == editableTournamentTeams[i] || clickElement == editableText[i]){
+                    addNewTourneyTeam(editableTournamentTeams[i], i);
+                    editableTournamentTeams[i] = null;
+                    editableText[i] = null;
+                }
+            }
+        }
+        
+        if(tourney){
+            gameOptionsAdded = false;
+            for(var i = 0; i < tournamentGames.length; i++){
+                var arr = tournamentGames[i];
+                for(var l = 0; l < arr.length; l++){
+                    if(clickElement == arr[l]){
+                        playTourneyGame.setPosition(mouseX + 5, mouseY);
+                        centerText(sayPlayTourneyGame, playTourneyGame);
+                        add(playTourneyGame);
+                        add(sayPlayTourneyGame);
+                        
+                        simTourneyGame.setPosition(mouseX + 5, mouseY + 24.5);
+                        centerText(saySimTourneyGame, simTourneyGame);
+                        add(simTourneyGame);
+                        add(saySimTourneyGame);
+                        
+                        gameOptionsAdded = true;
+                        
+                        for(var b = 0; b < barIndexArray.length; b++){
+                            if(barIndexArray[b] == arr[1]){
+                                teamOneIndex = b;
+                                println(teamOneIndex);
+                            }
+                            if(barIndexArray[b] == arr[6]){
+                                teamTwoIndex = b;
+                                println(teamTwoIndex);
+                            }
+                        }
+                    }
+                }
+                if(!gameOptionsAdded){
+                    remove(playTourneyGame);
+                    remove(sayPlayTourneyGame);
+                    remove(simTourneyGame);
+                    remove(saySimTourneyGame);
+                }
+            }
+            
+            if(clickElement == playTourneyGame || clickElement == sayPlayTourneyGame){
+                teamOneName = tournamentTeamNames[teamOneIndex];
+                teamTwoName = tournamentTeamNames[teamTwoIndex];
+                teamOneSize = tournamentTeamSizes[teamOneIndex];
+                teamTwoSize = tournamentTeamSizes[teamTwoIndex];
+                teamOneColor = tournamentTeamColors[teamOneIndex];
+                teamTwoColor = tournamentTeamColors[teamTwoIndex];
+                moveToGame();
+            }
+        }
+        
+    }else{
+        if(testingCollisions){
+            postX = 47.5;// + Randomizer.nextFloat(-3, 3);
+            postY = 356;// + Randomizer.nextFloat(-3, 3);
+            puck.setPosition(e.getX(), e.getY());
+            px = postX - puck.getX();
+            py = postY - puck.getY();
+            var div = (Math.abs(px) + Math.abs(py));  //to normalize
+            px /= div;
+            py /= div;
+            
+            var _speed = 6;
+            px *= _speed;
+            py *= _speed;
+            
+            goalieOne.setPosition(width - 20, height - 20);
+        }
+        if(endOfPeriod){
+            if(endOfPeriodTimer > 200){
+                skippingIntermission = true;
+                endOfPeriodTimer = 1720;
+            }
+        }
+    }
+    
+    if(clickElement == puck){
+        toggleDebug();
+    }
+}
+var changingTeamOneSize = false;
+var changingTeamTwoSize = false;
+
+function mouseUp(e){
+    changingTeamOneSize = false;
+    changingTeamTwoSize = false;
+    changingnttSize = false;
+}
+
+function keyDown(e){
+    if(endOfPeriod || !game){
+        return;
+    }
+    if(e.keyCode == Keyboard.letter('a')){
+        keyA.setColor(Color.GREEN);
+        setPlayerTargetVelocity(1, 0, -8);
+    }
+    if(e.keyCode == Keyboard.letter('d')){
+        keyD.setColor(Color.GREEN);
+        setPlayerTargetVelocity(1, 0, 8);
+    }
+    if(e.keyCode == Keyboard.letter('w')){
+        keyW.setColor(Color.GREEN);
+        setPlayerTargetVelocity(1, 1, -8);
+        fake(1, 1);
+    }
+    if(e.keyCode == Keyboard.letter('s')){
+        keyS.setColor(Color.GREEN);
+        setPlayerTargetVelocity(1, 1, 8);
+        fake(1, 2);
+    }
+    
+    if(e.keyCode == Keyboard.LEFT){
+        keyLeft.setColor(Color.GREEN);
+        setPlayerTargetVelocity(2, 0, -8);
+    }
+    if(e.keyCode == Keyboard.RIGHT){
+        keyRight.setColor(Color.GREEN);
+        setPlayerTargetVelocity(2, 0, 8);
+    }
+    if(e.keyCode == Keyboard.UP){
+        keyUp.setColor(Color.GREEN);
+        setPlayerTargetVelocity(2, 1, -8);
+        fake(2, 1);
+    }
+    if(e.keyCode == Keyboard.DOWN){
+        keyDown.setColor(Color.GREEN);
+        setPlayerTargetVelocity(2, 1, 8);
+        fake(2, 2);
+    }
+    
+    if(e.keyCode == Keyboard.SPACE){
+        startShot();
+    }
+}
+
+function keyUp(e){
+    if(e.keyCode == Keyboard.letter('a')){
+        setPlayerTargetVelocity(1, 0, 0);
+        if(game){
+            keyA.setColor(Color.GRAY);
+        }
+    }
+    if(e.keyCode == Keyboard.letter('d')){
+        setPlayerTargetVelocity(1, 0, 0);
+        if(game){
+            keyD.setColor(Color.GRAY);
+        }
+    }
+    if(e.keyCode == Keyboard.letter('w')){
+        setPlayerTargetVelocity(1, 1, 0);
+        if(game){
+            keyW.setColor(Color.GRAY);
+        }
+    }
+    if(e.keyCode == Keyboard.letter('s')){
+        setPlayerTargetVelocity(1, 1, 0);
+        if(game){
+            keyS.setColor(Color.GRAY);
+        }
+    }
+    
+    if(e.keyCode == Keyboard.LEFT){
+        setPlayerTargetVelocity(2, 0, 0);
+        if(game){
+            keyLeft.setColor(Color.GRAY);
+        }
+    }
+    if(e.keyCode == Keyboard.RIGHT){
+        setPlayerTargetVelocity(2, 0, 0);
+        if(game){
+            keyRight.setColor(Color.GRAY);
+        }
+    }
+    if(e.keyCode == Keyboard.UP){
+        setPlayerTargetVelocity(2, 1, 0);
+        if(game){
+            keyUp.setColor(Color.GRAY);
+        }
+    }
+    if(e.keyCode == Keyboard.DOWN){
+        setPlayerTargetVelocity(2, 1, 0);
+        if(game){
+            keyDown.setColor(Color.GRAY);
+        }
+    }
+    
+    if(e.keyCode == Keyboard.SPACE){
+        shootPuck = true;
+    }
+}
+
+
+/**************************************************************
+
+
+OTHER
+
+
+*************************************************************/
+
+function lerpPlayerSpeed(currentSpeed, targetSpeed, acc, player, xy){//xy = 1 if x value modified, 2 if y value modified
+    if(currentSpeed == targetSpeed){
+        return currentSpeed;
+    }
+    dif = Math.abs(targetSpeed - currentSpeed);
+    if(currentSpeed < 0 && targetSpeed >= 0){
+        if(player == 1 && targetSpeed > 0){
+            if(xy == 1){
+                aSlowingX = true;
+            }else{
+                aSlowingY = true;
+            }
+        }else if(player == 2 && targetSpeed > 0){
+            if(xy == 1){
+                bSlowingX = true;
+            }else{
+                bSlowingY = true;
+            }
+        }
+        rate = 0.013;
+    } else if(currentSpeed > 0 && targetSpeed <= 0){
+        if(player == 1 && targetSpeed < 0){
+            if(xy == 1){
+                aSlowingX = true;
+            }else{
+                aSlowingY = true;
+            }
+        }else if(player == 2 && targetSpeed < 0){
+            if(xy == 1){
+                bSlowingX = true;
+            }else{
+                bSlowingY = true;
+            }
+        }
+        rate = 0.013;
+    }else{
+        if(dif > 6){
+            rate = 0.0075 * (acc/speedDenominator) * acceleration;
+        }else if(dif > 4){
+            rate = 0.011 * (acc/speedDenominator) * acceleration;
+        }else if(dif > 2){
+            rate = 0.016 * (acc/speedDenominator) * acceleration;
+        }else{
+            rate = 0.04 * (acc/speedDenominator) * acceleration;
+        }
+    }
+    currentSpeed = ((targetSpeed - currentSpeed) * rate) + currentSpeed;
+    if(Math.abs(targetSpeed - currentSpeed) < 0.002){
+        currentSpeed = targetSpeed;
+    }
+    
+    return currentSpeed;
+}
+
+function lerpPuckVelocity(current, target){
+    if(current == target){
+        return current;
+    }
+    
+    dif = Math.abs(target - current);
+    
+    
+    if(dif > 6){
+        rate = 0.0013;
+    }else if(dif > 4){
+        rate = 0.009;
+    }else if(dif > 2){
+        rate = 0.004;
+    }else{
+        rate = 0.02;
+    }
+    
+    current = ((target - current) * rate) + current;
+    if(Math.abs(target - current) < 0.05){
+        current = target;
+    }
+    return current;
+}
+
+function GoalieMovement(){
+    //365 - 435
+    agx = manageGoalieVelocityInDirection(agx, agtx - agpx, 1);
+    agy = manageGoalieVelocityInDirection(agy, agty - agpy, 1);
+    bgx = manageGoalieVelocityInDirection(bgx, bgtx - bgpx, 2);
+    bgy = manageGoalieVelocityInDirection(bgy, bgty - bgpy, 2);
+    
+    limitGoalieVelocities();
+    slowGoaliesDown();
+}
+
+function fake(_p, _d){  //15% chance
+    if(!game){
+        return;
+    }
+    ran = Randomizer.nextInt(1, 20);
+    if(_p == 1){
+        if(aPuck && ppx > width - 450){
+            if(ran <= 3){
+                if(_d == 1){
+                    if(frame - goalieBLastPush >= 40){
+                        bgy -= 1.1;
+                        goalieBLastPush = frame + 25;
+                    }
+                }else{
+                    if(frame - goalieBLastPush >= 40){
+                        bgy += 1.1;
+                        goalieBLastPush = frame + 25;
+                    }
+                }
+            }
+        }
+    }
+    if(_p == 2){
+        if(bPuck && ppx < 450){
+            if(ran <= 3){
+                if(_d == 1){
+                    if(frame - goalieALastPush >= 40){
+                        agy -= 1.1;
+                        goalieALastPush = frame;
+                    }
+                }else{
+                    if(frame - goalieALastPush >= 40){
+                        agy += 1.1;
+                        goalieALastPush = frame;
+                    }
+                }
+            }
+        }
+    }
+}
+
+function manageGoalieVelocityInDirection(vector, dis, _g){
+    var lastPush;
+    if(_g == 1){
+        lastPush = goalieALastPush;
+    }else{
+        lastPush = goalieBLastPush;
+    }
+    
+    if(dis <= -15){
+        if(vector > -.4 && vector <= 0){
+            if(frame - lastPush >= 42 || lastPush == frame){
+                vector -= .85;
+                lastPush = frame;
+            }
+        }else if(vector > 0){
+            vector -= 0.045;
+        }
+    }else if(dis > -15 && dis < 0){
+        if(frame - lastPush >= 42){
+            if(vector > -.2){
+                vector -= 0.02;
+            }
+        }
+    }else if(dis > 0 && dis < 15){
+        if(frame - lastPush >= 42){
+            if(vector < .2){
+                vector += 0.02;
+            }
+        }
+    }else if(dis >= 15){
+        if(vector < .4 && vector >= 0){
+            if(frame - lastPush >= 42 || lastPush == frame){
+                vector += .85;
+                lastPush = frame;
+            }
+        }else if(vector < 0){
+            vector += 0.045;
+        }
+    }
+    
+    if(_g == 1){
+        goalieALastPush = lastPush;
+    }else{
+        goalieBLastPush = lastPush;
+    }
+    
+    return vector;
+}
+
+function slowGoaliesDown(){
+    if(agx > 0){
+        if(agx > 0.01){
+            agx -= 0.014;
+        }else{
+            agx = 0;    
+        }
+    }
+    if(agx < 0){
+        if(agx < 0.01){
+            agx += 0.014;
+        }else{
+            agx = 0;    
+        }
+    }
+    if(agy > 0){
+        if(agy > 0.01){
+            agy -= 0.014;
+        }else{
+            agy = 0;    
+        }
+    }
+    if(agy < 0){
+        if(agy < 0.01){
+            agy += 0.014;
+        }else{
+            agy = 0;    
+        }
+    }
+    if(bgx > 0){
+        if(bgx > 0.01){
+            bgx -= 0.014;
+        }else{
+            bgx = 0;    
+        }
+    }
+    if(bgx < 0){
+        if(bgx < 0.01){
+            bgx += 0.014;
+        }else{
+            bgx = 0;    
+        }
+    }
+    if(bgy > 0){
+        if(bgy > 0.01){
+            bgy -= 0.014;
+        }else{
+            bgy = 0;    
+        }
+    }
+    if(bgy < 0){
+        if(bgy < 0.01){
+            bgy += 0.014;
+        }else{
+            bgy = 0;    
+        }
+    }
+}
+
+function limitGoalieVelocities(){
+    if(agx > 2.5){
+        agx = 2.5;
+    }
+    if(agy > 2.5){
+        agy = 2.5;
+    }
+    if(agx < -2.5){
+        agx = -2.5;
+    }
+    if(agy < -2.5){
+        agy = -2.5;
+    }
+    if(bgx > 2.5){
+        bgx = 2.5;
+    }
+    if(bgy > 2.5){
+        bgy = 2.5;
+    }
+    if(bgx < -2.5){
+        bgx = -2.5;
+    }
+    if(bgy < -2.5){
+        bgy = -2.5;
+    }
+}
+
+
+function collisions(){
+    apx = playerOne.getX();
+    apy = playerOne.getY();
+    bpx = playerTwo.getX();
+    bpy = playerTwo.getY();
+    
+    if(apx < aRad){
+        playerOne.setPosition(aRad + (aRad - apx), apy);
+        if(ax < 0){
+            ax = -ax/2.3;
+            aTarX = 0;
+        }
+    }
+    if(apx > (width - aRad)){
+        playerOne.setPosition(width - aRad - (apx + aRad - width), apy);
+        if(ax > 0){
+            ax = -ax/2.3;
+            aTarX = 0;
+        }
+    }
+    if(apy < (arenaY + aRad)){
+        playerOne.setPosition(apx, arenaY + aRad + (aRad + arenaY - apy));
+        if(ay < 0){
+            ay = -ay/2.3;
+            aTarY = 0;
+        }
+    }
+    if(apy > (arenaBottom - aRad)){
+        playerOne.setPosition(apx, arenaBottom - aRad - (apy + aRad - arenaBottom));
+        if(ay > 0){
+            ay = -ay/2.3;
+            aTarY = 0;
+        }
+    }
+    
+    
+    
+    if(bpx < bRad){
+        playerTwo.setPosition(bRad + (bRad - bpx), bpy);
+        if(bx < 0){
+            bx = -bx/2.3;
+            bTarX = 0;
+        }
+    }
+    if(bpx > (width - bRad)){
+        playerTwo.setPosition(width - bRad - (bpx + bRad - width), bpy);
+        if(bx > 0){
+            bx = -bx/2.3;
+            bTarX = 0;
+        }
+    }
+    if(bpy < (arenaY + bRad)){
+        playerTwo.setPosition(bpx, arenaY + bRad + (bRad + arenaY - bpy));
+        if(by < 0){
+            by = -by/2.3;
+            bTarY = 0;
+        }
+    }
+    if(bpy > (arenaBottom - bRad)){
+        playerTwo.setPosition(bpx, arenaBottom - bRad - (bpy + bRad - arenaBottom));
+        if(by > 0){
+            by = -by/2.3;
+            bTarY = 0;
+        }
+    }
+    
+    apx = playerOne.getX();
+    apy = playerOne.getY();
+    bpx = playerTwo.getX();
+    bpy = playerTwo.getY();
+    
+    if(apy < 349 && apy > 330){
+        if(apx < 61){
+            if(apy > 341){
+                ay = -ay/2.3;
+                aTarY = 0;
+                playerOne.setPosition(apx, apy - (apy - 341));
+            }
+        }
+    }
+    
+    if(apy < 384 && apy > 364){
+        if(apx < 61){
+            if(apy < 373){
+                ay = -ay/2.3;
+                aTarY = 0;
+                playerOne.setPosition(apx, apy + (373 - apy));
+            }
+        }
+    }
+    
+    
+    
+    if(apy < 431 && apy > 412){
+        if(apx < 61){
+            if(apy > 423){
+                ay = -ay/2.3;
+                aTarY = 0;
+                playerOne.setPosition(apx, apy - (apy - 423));
+            }
+        }
+    }
+    
+    if(apy < 463 && apy > 448){
+        if(apx < 61){
+            if(apy < 456){
+                ay = -ay/2.3;
+                aTarY = 0;
+                playerOne.setPosition(apx, apy + (456 - apy));
+            }
+        }
+    }
+    
+    
+    
+    if(apx < 69 && apx > 54){
+        if(apy > 341 && apy < 373){
+            if(apx < 62){
+                ax = -ax/2.3;
+                aTarX = 0;
+                playerOne.setPosition(apx + (62 - apx), apy);
+            }
+        }
+        
+        if(apy > 423 && apy < 456){
+            if(apx < 62){
+                ax = -ax/2.3;
+                aTarX = 0;
+                playerOne.setPosition(apx + (62 - apx), apy);
+            }
+        }
+    }
+    
+    
+    
+    
+    
+    
+    
+    if(apy < 349 && apy > 330){
+        if(apx > width - 61){
+            if(apy > 341){
+                ay = -ay/2.3;
+                aTarY = 0;
+                playerOne.setPosition(apx, apy - (apy - 341));
+            }
+        }
+    }
+    
+    if(apy < 384 && apy > 364){
+        if(apx > width - 61){
+            if(apy < 373){
+                ay = -ay/2.3;
+                aTarY = 0;
+                playerOne.setPosition(apx, apy + (373 - apy));
+            }
+        }
+    }
+    
+    
+    
+    if(apy < 431 && apy > 412){
+        if(apx > width - 61){
+            if(apy > 423){
+                ay = -ay/2.3;
+                aTarY = 0;
+                playerOne.setPosition(apx, apy - (apy - 423));
+            }
+        }
+    }
+    
+    if(apy < 463 && apy > 448){
+        if(apx > width - 61){
+            if(apy < 456){
+                ay = -ay/2.3;
+                aTarY = 0;
+                playerOne.setPosition(apx, apy + (456 - apy));
+            }
+        }
+    }
+    
+    
+    
+    if(apx > width - 69 && apx < width - 54){
+        if(apy > 341 && apy < 373){
+            if(apx > width - 61){
+                ax = -ax/2.3;
+                aTarX = 0;
+                playerOne.setPosition(apx - (apx - (width - 62)), apy);
+            }
+        }
+        
+        if(apy > 423 && apy < 456){
+            if(apx > width - 61){
+                ax = -ax/2.3;
+                aTarX = 0;
+                playerOne.setPosition(apx - (apx - (width - 62)), apy);
+            }
+        }
+    }
+    
+    
+    
+    //Player 2
+    
+    
+    
+    if(bpy < 349 && bpy > 330){
+        if(bpx < 61){
+            if(bpy > 341){
+                by = -by/2.3;
+                bTarY = 0;
+                playerTwo.setPosition(bpx, bpy - (bpy - 341));
+            }
+        }
+    }
+    
+    if(bpy < 384 && bpy > 364){
+        if(bpx < 61){
+            if(bpy < 373){
+                by = -by/2.3;
+                bTarY = 0;
+                playerTwo.setPosition(bpx, bpy + (373 - bpy));
+            }
+        }
+    }
+    
+    
+    
+    if(bpy < 431 && bpy > 412){
+        if(bpx < 61){
+            if(bpy > 423){
+                by = -by/2.3;
+                bTarY = 0;
+                playerTwo.setPosition(bpx, bpy - (bpy - 423));
+            }
+        }
+    }
+    
+    if(bpy < 463 && bpy > 448){
+        if(bpx < 61){
+            if(bpy < 456){
+                by = -by/2.3;
+                bTarY = 0;
+                playerTwo.setPosition(bpx, bpy + (456 - bpy));
+            }
+        }
+    }
+    
+    
+    
+    if(bpx < 69 && bpx > 54){
+        if(bpy > 341 && bpy < 373){
+            if(bpx < 62){
+                bx = -bx/2.3;
+                bTarX = 0;
+                playerTwo.setPosition(bpx + (62 - bpx), bpy);
+            }
+        }
+        
+        if(bpy > 423 && bpy < 456){
+            if(bpx < 62){
+                bx = -bx/2.3;
+                bTarX = 0;
+                playerTwo.setPosition(bpx + (62 - bpx), bpy);
+            }
+        }
+    }
+    
+    
+    
+    
+    
+    
+    
+    if(bpy < 349 && bpy > 330){
+        if(bpx > width - 61){
+            if(bpy > 341){
+                by = -by/2.3;
+                bTarY = 0;
+                playerTwo.setPosition(bpx, bpy - (bpy - 341));
+            }
+        }
+    }
+    
+    if(bpy < 384 && bpy > 364){
+        if(bpx > width - 61){
+            if(bpy < 373){
+                by = -by/2.3;
+                bTarY = 0;
+                playerTwo.setPosition(bpx, bpy + (373 - bpy));
+            }
+        }
+    }
+    
+    
+    
+    if(bpy < 431 && bpy > 412){
+        if(bpx > width - 61){
+            if(bpy > 423){
+                by = -by/2.3;
+                bTarY = 0;
+                playerTwo.setPosition(bpx, bpy - (bpy - 423));
+            }
+        }
+    }
+    
+    if(bpy < 463 && bpy > 448){
+        if(bpx > width - 61){
+            if(bpy < 456){
+                by = -by/2.3;
+                bTarY = 0;
+                playerTwo.setPosition(bpx, bpy + (456 - bpy));
+            }
+        }
+    }
+    
+    
+    
+    if(bpx > width - 69 && bpx < width - 54){
+        if(bpy > 341 && bpy < 373){
+            if(bpx > width - 61){
+                bx = -bx/2.3;
+                bTarX = 0;
+                playerTwo.setPosition(bpx - (bpx - (width - 62)), bpy);
+            }
+        }
+        
+        if(bpy > 423 && bpy < 456){
+            if(bpx > width - 61){
+                bx = -bx/2.3;
+                bTarX = 0;
+                playerTwo.setPosition(bpx - (bpx - (width - 62)), bpy);
+            }
+        }
+    }
+    
+    
+}
+
+function puckCollisions(){
+    ppx = puck.getX();
+    ppy = puck.getY();
+    agpx = goalieOne.getX();
+    agpy = goalieOne.getY();
+    bgpx = goalieTwo.getX();
+    bgpy = goalieTwo.getY();
+    
+    puckNetCollisions();
+    
+    ppx = puck.getX();
+    ppy = puck.getY();
+    puckCloseToGoalieA = false;
+    puckCloseToGoalieB = false;
+    ran = Randomizer.nextInt(0, 22);
+    
+    if(!endOfPeriod && !teamOneScored && !teamTwoScored){
+        puckCollideWithGoalies();
+    }
+    ppx = puck.getX();
+    ppy = puck.getY();
+    
+    puckCollisionsWithBoards();
+}
+
+function puckCollideWithGoalies(){
+    if(ppx - agpx > -22 && ppx - agpx < 22){
+        if(ppy - agpy > -22 && ppy - agpy < 22){
+            puckCloseToGoalieA = true;
+        }
+    }
+    
+    if(puckCloseToGoalieA && !goalieAsave){
+        dis = Math.sqrt(((ppx - agpx) * (ppx - agpx)) + ((ppy - agpy) * (ppy - agpy)));
+        if(dis < 21.5){
+            if(frame - goalieASaveAttemptFrame >= 30){
+                var oopsIncrease =  120 /(.7 * (frame - goalieASaveAttemptFrame));
+                if(oopsIncrease < 1){
+                    oopsIncrease = 1;
+                }
+                if(oopsIncrease > 12){
+                    oopsIncrease = 12;
+                }
+                if(ran >= 22 - oopsIncrease){
+                    var ranTwo = Randomizer.nextInt(0, goalieWords.length - 1);
+                    goalieAoopsText.setText(goalieWords[ranTwo]);
+                    add(goalieAoopsText);
+                    goalieAoops = frame;
+                    goalieASaveAttemptFrame = frame;
+                }else if(ran < 4 || aPuck || bPuck){
+                    teamOneSaves++;
+                    goalieAsave = true;
+                    aPuck = false;
+                    aChargingShot = false;
+                    bPuck = false;
+                    bChargingShot = false;
+                    if(ppy <= arenaCenterY){
+                        faceoff(width/6, 268);
+                    }else{
+                        faceoff(width/6, 532);
+                    }
+                    goalieASaveAttemptFrame = frame - 23;
+                }else{
+                    teamOneSaves++;
+                    puck.move(-px/4, -py/4);
+                    ppx = puck.getX() - agpx;
+                    ppy = puck.getY() - agpy;
+                    px = ppx/(Math.abs(ppx) + Math.abs(ppy));
+                    py = ppy/(Math.abs(ppx) + Math.abs(ppy));
+                    px *= 1.5;
+                    py *= 1.5;
+                    updatePuckTrail();
+                    goalieASaveAttemptFrame = frame - 23;
+                }
+            }
+        }
+    }
+    
+    if(ppx - bgpx > -22 && ppx - bgpx < 22){
+        if(ppy - bgpy > -22 && ppy - bgpy < 22){
+            puckCloseToGoalieB = true;
+        }
+    }
+    
+    if(puckCloseToGoalieB && !goalieBsave){
+        dis = Math.sqrt(((ppx - bgpx) * (ppx - bgpx)) + ((ppy - bgpy) * (ppy - bgpy)));
+        if(dis < 21.5){
+            if(frame - goalieBSaveAttemptFrame >= 30){
+                var oopsIncrease =  120 /(.7 * (frame - goalieBSaveAttemptFrame));
+                if(oopsIncrease < 1){
+                    oopsIncrease = 1;
+                }
+                if(ran >= 22 - oopsIncrease){
+                    var ranTwo = Randomizer.nextInt(0, goalieWords.length - 1);
+                    goalieBoopsText.setText(goalieWords[ranTwo]);
+                    add(goalieBoopsText);
+                    goalieBoops = frame;
+                    goalieBSaveAttemptFrame = frame;
+                }else if(ran < 4 || aPuck || bPuck){
+                    teamTwoSaves++;
+                    goalieBsave = true;
+                    aPuck = false;
+                    aChargingShot = false;
+                    bPuck = false;
+                    bChargingShot = false;
+                    if(ppy <= arenaCenterY){
+                        faceoff(width/6 * 5, 268);
+                    }else{
+                        faceoff(width/6 * 5, 532);
+                    }
+                    goalieBSaveAttemptFrame = frame - 23;
+                }else{
+                    teamTwoSaves++;
+                    puck.move(-px/4, -py/4);
+                    ppx = puck.getX() - bgpx;
+                    ppy = puck.getY() - bgpy;
+                    px = ppx/(Math.abs(ppx) + Math.abs(ppy));
+                    py = ppy/(Math.abs(ppx) + Math.abs(ppy));
+                    px *= 1.5;
+                    py *= 1.5;
+                    updatePuckTrail();
+                    goalieBSaveAttemptFrame = frame - 23;
+                }
+                
+            }
+        }
+    }
+    
+    if(goalieAsave){
+        puck.setPosition(agpx, agpy);
+        px = 0;
+        py = 0;
+        inPlay = false;
+    }
+    
+    if(goalieBsave){
+        puck.setPosition(bgpx, bgpy);
+        px = 0;
+        py = 0;
+        inPlay = false;
+    }
+}
+
+function puckNetCollisions(){
+    puckCloseToPost = false;
+    
+    for(var i = 0; i < 4; i ++){
+        if(i == 0){
+            postX = 47.5;
+            postY = 356;
+        }else if(i ==1){
+            postX = 47.5;
+            postY = 440;
+        }else if(i ==2){
+            postX = width - 47.5;
+            postY = 356;
+        }else if(i ==3){
+            postX = width - 47.5;
+            postY = 440;
+        }
+        
+        if(ppx - postX > -14 && ppx - postX < 14){
+            if(ppy - postY > -14 && ppy - postY < 14){
+                puckCloseToPost = true;
+            }
+        }
+        
+        ppx = puck.getX();
+        ppy = puck.getY();
+        
+        if(puckCloseToPost && collidedWithPostFrame <= frame - 9){
+            dis = Math.sqrt(((ppx - postX) * (ppx - postX)) + ((ppy - postY) * (ppy - postY)));
+            
+            if(dis <= 6){//6 = post radius
+                if(px == 0){
+                    py *= -.7;
+                    puck.move(px/4, py/4);
+                    return;
+                }
+                if(py == 0){
+                    var dif = puck.getY() - postY;
+                    if(dif > 5 || dif < -5){
+                        px *= .7;
+                    }else if (dif > 2.5 || dif < -2.5){
+                        px *= -.3;
+                    }else{
+                        px *= -.75;
+                    }
+                    dif /= 3;
+                    py = dif;
+                    puck.move(px/4, py/4);
+                    collidedWithPostFrame = frame + 3;
+                    return;
+                }
+                var m = (px/py);
+                var b = (ppy - (m * ppx));
+                var mTwo = -1 * py/px;
+                var bTwo = postY - (mTwo * postX);
+                var _x = (bTwo - b)/(m - mTwo);
+                var _y = (m * _x) + b;
+                dis = Math.sqrt(((_x - postX) * (_x - postX)) + ((_y - postY) * (_y - postY)));
+                dis /= 5;
+                if(testingCollisions){
+                    println(puck.getX());
+                    println(puck.getY());
+                    println(px);
+                    println(py);
+                    println(m);
+                    println(b);
+                    println(mTwo);
+                    println(bTwo);
+                    println(_x);
+                    println(_y);
+                    
+                    println(dis);
+                    
+                    
+                    var puckSlope = new Line(ppx - (px * 10), ppy - (py * 10), ppx + (px * 10), ppy + (py * 10));
+                    puckSlope.setColor(Color.GREEN);
+                    puckSlope.setLineWidth(0.4);
+                    add(puckSlope);
+                    var puckSlopeNormal = new Line(postX - (py * -10), postY - (px * 10), postX + (py * -10), postY + (px * 10));
+                    puckSlopeNormal.setColor(Color.YELLOW);
+                    puckSlopeNormal.setLineWidth(0.4);
+                    add(puckSlopeNormal);
+                    var CollisionClosestSpot = new Circle(0.8);
+                    CollisionClosestSpot.setPosition(_x, _y);
+                    CollisionClosestSpot.setColor(Color.BLUE);
+                    add(CollisionClosestSpot);
+                    var postPrecise = new Circle(0.8);
+                    postPrecise.setPosition(postX, postY);
+                    postPrecise.setColor(Color.RED);
+                    add(postPrecise);
+                    var puckSlopeEnd = new Circle(1);
+                    puckSlopeEnd.setPosition(ppx + (px * 10), ppy + (py * 10));
+                    puckSlopeEnd.setColor(Color.GREEN);
+                    add(puckSlopeEnd);
+                    var puckSlopeNormalEnd = new Circle(1);
+                    puckSlopeNormalEnd.setPosition(postX + (py * -10), postY + (px * 10));
+                    puckSlopeNormalEnd.setColor(Color.YELLOW);
+                    add(puckSlopeNormalEnd);
+                    println(px + ", " + py);
+                }
+                var pTarX;
+                var pTarY;
+                var dif;
+                
+                if(dis > 1){
+                    pTarX = -1 * py;
+                    pTarY = px;
+                    dis -= 1;
+                }else{
+                    pTarX = -1 * px;
+                    pTarY = -1 * py;
+                    var oldPx = px;
+                    
+                    px = -1 * py;
+                    py = oldPx;
+                }
+                
+                dif = pTarX - px;
+                dif *= dis;
+                px += dif;
+                
+                dif = pTarY - py;
+                dif *= dis;
+                py += dif;
+                
+                ppx = _x;
+                ppy = _y;
+                px *= 0.6;
+                py *= 0.6;
+                puck.setPosition(ppx + px/4, ppy + py/4);
+                if(testingCollisions){
+                    println(px + ", " + py);
+                    
+                    var puckResult = new Line(ppx, ppy, ppx + (px * 10), ppy + (py * 10));
+                    puckResult.setColor(Color.PURPLE);
+                    puckResult.setLineWidth(0.4);
+                    add(puckResult);
+                    
+                    pause = true;
+                }
+                
+                if(i < 2){
+                    bPosts++;
+                }else{
+                    aPosts++;
+                }
+                collidedWithPostFrame = frame + 6;
+                updatePuckTrail();
+                
+                if(testingCollisions){
+                    collidedWithPostFrame = frame + 100000;
+                }
+            }
+        }
+        ppx = puck.getX();
+        ppy = puck.getY();
+        
+        if(ppx <= 47.5){
+            if(ppy <= postY + 6 && ppy >= postY - 6){
+                if(!aPuck && !bPuck){
+                    puck.setPosition(ppx, ppy - (py * 2.7));
+                    py *= -.4;
+                    updatePuckTrail();
+                }else{
+                    if(puck.getY() < arenaCenterY){
+                        puck.setPosition(puck.getX(), postY - 6);
+                    }else{
+                        puck.setPosition(puck.getX(), postY + 6);
+                    }
+                }
+            }
+        }
+        if(ppx >= width - 41.2){
+            if(ppy <= postY + 6 && ppy >= postY - 6){
+                if(!aPuck && !bPuck){
+                    puck.setPosition(ppx, ppy - (py * 2.7));
+                    py *= -.4;
+                    updatePuckTrail();
+                }else{
+                    if(puck.getY() < arenaCenterY){
+                        puck.setPosition(puck.getX(), postY - 6);
+                    }else{
+                        puck.setPosition(puck.getX(), postY + 6);
+                    }
+                }
+            }
+        }
+        ppx = puck.getX();
+        ppy = puck.getY();
+        
+        if(ppy < 440 && ppy > 356){
+            if(ppx < PUCK_RADIUS + 2){
+                puck.setPosition(6.1, puck.getY());
+                px *= -.12;
+                updatePuckTrail();
+                aPuck = false;
+                bPuck = false;
+            }
+        }
+        
+        if(ppy < 440 && ppy > 356){
+            if(ppx > width - PUCK_RADIUS - 2){
+                puck.setPosition(width - 6.1, puck.getY());
+                px *= -.12;
+                updatePuckTrail();
+                aPuck = false;
+                bPuck = false;
+            }
+        }
+    }
+}
+
+function puckCollisionsWithBoards(){
+    if(ppx < PUCK_RADIUS){
+        puck.setPosition(PUCK_RADIUS + (PUCK_RADIUS - ppx), ppy);
+        if(px < 0){
+            px = -px/3.9;
+            updatePuckTrail();
+        }
+    }
+    if(ppx > (width - PUCK_RADIUS)){
+        puck.setPosition(width - PUCK_RADIUS - (ppx + PUCK_RADIUS - width), ppy);
+        if(px > 0){
+            px = -px/3.9;
+            updatePuckTrail();
+        }
+    }
+    if(ppy < (arenaTop + PUCK_RADIUS)){
+        puck.setPosition(ppx, arenaY + PUCK_RADIUS + (PUCK_RADIUS + arenaY - ppy));
+        if(py < 0){
+            py = -py/3.9;
+            updatePuckTrail();
+        }
+    }
+    if(ppy > (arenaBottom - PUCK_RADIUS)){
+        puck.setPosition(ppx, arenaBottom - PUCK_RADIUS - (ppy + PUCK_RADIUS - arenaBottom));
+        if(py > 0){
+            py = -py/3.9;
+            updatePuckTrail();
+        }
+    }
+}
+
+function hittingCollisions(){
+    if(frame - lastHitFrame <= 5){
+        return;
+    }
+    
+    updatePositions();
+    
+    dis = Math.sqrt(((apx - bpx) * (apx - bpx)) + ((apy - bpy) * (apy - bpy)));
+    
+    if(dis <= aRad + bRad + 0.2){
+        lastHitFrame = frame;
+        boink();
+        
+        if(!endOfPeriod){
+            fanExcitement = FAN_EXCITEMENT_HIT;
+            awayFanExcitement = FAN_EXCITEMENT_HIT;
+            lastModifiedFanExcitement = frame;
+        }
+    }
+    
+    dis = Math.sqrt(((apx - agpx) * (apx - agpx)) + ((apy - agpy) * (apy - agpy)));
+    
+    if(dis <= aRad + 17.7){
+        lastHitFrame = frame;
+        boinkGoalie(1, 1);
+        
+        if(!endOfPeriod){
+            fanExcitement = FAN_EXCITEMENT_HIT;
+            awayFanExcitement = FAN_EXCITEMENT_HIT;
+            lastModifiedFanExcitement = frame;
+        }
+    }
+    
+    dis = Math.sqrt(((apx - bgpx) * (apx - bgpx)) + ((apy - bgpy) * (apy - bgpy)));
+    
+    if(dis <= aRad + 17.7){
+        lastHitFrame = frame;
+        boinkGoalie(2, 1);
+        
+        if(!endOfPeriod){
+            fanExcitement = FAN_EXCITEMENT_HIT;
+            awayFanExcitement = FAN_EXCITEMENT_HIT;
+            lastModifiedFanExcitement = frame;
+        }
+    }
+    
+    dis = Math.sqrt(((bpx - agpx) * (bpx - agpx)) + ((bpy - agpy) * (bpy - agpy)));
+    
+    if(dis <= bRad + 17.7){
+        lastHitFrame = frame;
+        boinkGoalie(1, 2);
+        
+        if(!endOfPeriod){
+            fanExcitement = FAN_EXCITEMENT_HIT;
+            awayFanExcitement = FAN_EXCITEMENT_HIT;
+            lastModifiedFanExcitement = frame;
+        }
+    }
+    
+    dis = Math.sqrt(((bpx - bgpx) * (bpx - bgpx)) + ((bpy - bgpy) * (bpy - bgpy)));
+    
+    if(dis <= bRad + 17.7){
+        lastHitFrame = frame;
+        boinkGoalie(2, 2);
+        
+        if(!endOfPeriod){
+            fanExcitement = FAN_EXCITEMENT_HIT;
+            awayFanExcitement = FAN_EXCITEMENT_HIT;
+            lastModifiedFanExcitement = frame;
+        }
+    }
+}
+
+function noMoreInsideEachOther(_p, _pTwo){
+    updatePositions();
+    if(_p == 1 && _pTwo == 2){
+        if(Math.abs(apx - bpx) < (aRad + bRad)){
+            if(Math.abs(apy - bpy) < (aRad + bRad)){
+                var minDis = aRad + bRad + 0.04;
+                dis = Math.sqrt(((apx - bpx) * (apx - bpx)) + ((apy - bpy) * (apy - bpy)));
+                if(dis <= minDis){
+                    var moveDis = ((minDis - dis)/2);
+                    playerOne.move((apx - bpx)/Math.abs((apx - bpx) + (apy - bpy)) * moveDis, (apy - bpy)/Math.abs((apx - bpx) + (apy - bpy)) * moveDis);
+                    playerTwo.move((bpx - apx)/Math.abs((bpx - apx) + (bpy - apy)) * moveDis, (bpx - apx)/Math.abs((bpx - apx) + (bpy - apy)) * moveDis);
+                }
+            }
+        }
+    }
+    
+    if(_p == 1 && _pTwo == 3){
+        if(Math.abs(apx - agpx) < (aRad + 17.5)){
+            if(Math.abs(apy - agpy) < (aRad + 17.5)){
+                var minDis = aRad + 17.5 + 0.25;
+                dis = Math.sqrt(((apx - agpx) * (apx - agpx)) + ((apy - agpy) * (apy - agpy)));
+                if(dis <= minDis){
+                    var moveDis = ((minDis - dis)/2);
+                    playerOne.move((apx - agpx)/Math.abs((apx - agpx) + (apy - agpy)) * moveDis, (apy - agpy)/Math.abs((apx - agpx) + (apy - agpy)) * moveDis);
+                    goalieOne.move((agpx - apx)/Math.abs((agpx - apx) + (agpy - apy)) * moveDis, (agpx - apx)/Math.abs((agpx - apx) + (agpy - apy)) * moveDis);
+                }
+            }
+        }
+    }
+    
+    if(_p == 2 && _pTwo == 3){
+        if(Math.abs(bpx - agpx) < (bRad + 17.5)){
+            if(Math.abs(bpy - agpy) < (bRad + 17.5)){
+                var minDis = bRad + 17.5 + 0.25;
+                dis = Math.sqrt(((bpx - agpx) * (bpx - agpx)) + ((bpy - agpy) * (bpy - agpy)));
+                if(dis <= minDis){
+                    var moveDis = ((minDis - dis)/2);
+                    playerTwo.move((bpx - agpx)/Math.abs((bpx - agpx) + (bpy - agpy)) * moveDis, (bpy - agpy)/Math.abs((bpx - agpx) + (bpy - agpy)) * moveDis);
+                    goalieOne.move((agpx - bpx)/Math.abs((agpx - bpx) + (agpy - bpy)) * moveDis, (agpx - bpx)/Math.abs((agpx - bpx) + (agpy - bpy)) * moveDis);
+                }
+            }
+        }
+    }
+    
+    if(_p == 1 && _pTwo == 4){
+        if(Math.abs(apx - bgpx) < (aRad + 17.5)){
+            if(Math.abs(apy - bgpy) < (aRad + 17.5)){
+                var minDis = aRad + 17.5 + 0.25;
+                dis = Math.sqrt(((apx - bgpx) * (apx - bgpx)) + ((apy - bgpy) * (apy - bgpy)));
+                if(dis <= minDis){
+                    //println(minDis);
+                    //println(dis.toFixed(2));
+                    var moveDis = ((minDis - dis)/2);
+                    //println(moveDis);
+                    playerOne.move((apx - bgpx)/Math.abs((apx - bgpx) + (apy - bgpy)) * moveDis, (apy - bgpy)/Math.abs((apx - bgpx) + (apy - bgpy)) * moveDis);
+                    goalieTwo.move((bgpx - apx)/Math.abs((bgpx - apx) + (bgpy - apy)) * moveDis, (bgpx - apx)/Math.abs((bgpx - apx) + (bgpy - apy)) * moveDis);
+                }
+            }
+        }
+    }
+    
+    if(_p == 2 && _pTwo == 4){
+        if(Math.abs(bpx - bgpx) < (bRad + 17.5)){
+            if(Math.abs(bpy - bgpy) < (bRad + 17.5)){
+                var minDis = bRad + 17.5 + 0.25;
+                dis = Math.sqrt(((bpx - bgpx) * (bpx - bgpx)) + ((bpy - bgpy) * (bpy - bgpy)));
+                if(dis <= minDis){
+                    var moveDis = ((minDis - dis)/2);
+                    playerTwo.move((bpx - bgpx)/Math.abs((bpx - bgpx) + (bpy - bgpy)) * moveDis, (bpy - bgpy)/Math.abs((bpx - bgpx) + (bpy - bgpy)) * moveDis);
+                    goalieTwo.move((bgpx - bpx)/Math.abs((bgpx - bpx) + (bgpy - bpy)) * moveDis, (bgpx - bpx)/Math.abs((bgpx - bpx) + (bgpy - bpy)) * moveDis);
+                }
+            }
+        }
+    }
+}
+
+function boink(){
+    colinBang.play();
+    movX = (bx - ax) * 1.4 * collisionForce;
+    movY = (by - ay) * 1.4 * collisionForce;
+    
+    var hitResistanceA = 10 + (teamOneSize * (sizeHittingBenefit + (teamOneSize * 0.1)));
+    var hitResistanceB = 10 + (teamTwoSize * (sizeHittingBenefit + (teamTwoSize * 0.1)));
+    
+    var aVel = Math.sqrt((ax * ax) + (ay * ay));
+    var bVel = Math.sqrt((bx * bx) + (by * by));
+    if(aVel > bVel && aVel > 0.85){
+        teamOneHits++;
+    }
+    if(bVel > aVel && bVel > 0.85){
+        teamTwoHits++;
+    }
+    if(aVel > bVel + 0.9){
+        ax += movX/1.05 * (10/hitResistanceA);
+        ay += movY/1.05 * (10/hitResistanceA);
+        bx -= movX * (10/hitResistanceB);
+        by -= movY * (10/hitResistanceB);
+    }else if(bVel > aVel + 0.9){
+        ax += movX * (10/hitResistanceA);
+        ay += movY * (10/hitResistanceA);
+        bx -= movX/1.05 * (10/hitResistanceB);
+        by -= movY/1.05 * (10/hitResistanceB);
+    }else{
+        ax += movX * (10/hitResistanceA);
+        ay += movY * (10/hitResistanceA);
+        bx -= movX * (10/hitResistanceB);
+        by -= movY * (10/hitResistanceB);
+    }
+    
+    if(aPuck || bPuck){
+        bumpedWithPuck();
+        aChargingShot = false;
+        bChargingShot = false;
+    }
+    
+    noMoreInsideEachOther(1, 2);
+}
+
+function boinkGoalie(_g, _p){
+    colinBang.play();
+    if(_g == 1){
+        if(_p == 1){
+            movX = (ax - agx) * 1.4 * collisionForce;
+            movY = (ay - agy) * 1.4 * collisionForce;
+        }else{
+            movX = (bx - agx) * 1.4 * collisionForce;
+            movY = (by - agy) * 1.4 * collisionForce;
+        }
+    }else{
+        if(_p == 1){
+            movX = (ax - bgx) * 1.4 * collisionForce;
+            movY = (ay - bgy) * 1.4 * collisionForce;
+        }else{
+            movX = (bx - bgx) * 1.4 * collisionForce;
+            movY = (by - bgy) * 1.4 * collisionForce;
+        }
+    }
+    
+    var hitResistanceA = 10 + (teamOneSize * (sizeHittingBenefit + (teamOneSize * 0.1)));
+    var hitResistanceB = 10 + (teamTwoSize * (sizeHittingBenefit + (teamTwoSize * 0.1)));
+
+    if(_p == 1){
+        ax -= movX * (10/hitResistanceA);
+        ay -= movY * (10/hitResistanceA);
+    }else{
+        bx -= movX * (10/hitResistanceB);
+        by -= movY * (10/hitResistanceB);
+    }
+    
+    if(_g == 1){
+        agx += movX/2.1 * (10/hitResistanceA);
+        agy += movY/2.1 * (10/hitResistanceA);
+    }else{
+        bgx += movX/2.1 * (10/hitResistanceB);
+        bgy += movY/2.1 * (10/hitResistanceB);
+    }
+    
+    if(aPuck && _p == 1){
+        bumpedWithPuck();
+        aPuck = false;
+        aChargingShot = false;
+        aCanHaveFrame = frame + 24;
+        bChargingShot = false;
+    }
+    if(bPuck && _p == 2){
+        bumpedWithPuck();
+        bPuck = false;
+        bChargingShot = false;
+        bCanHaveFrame = frame + 24;
+        aChargingShot = false;
+    }
+    
+    noMoreInsideEachOther(_p, _g + 2);
+}
+
+function updatePositions(){
+    apx = playerOne.getX();
+    apy = playerOne.getY();
+    bpx = playerTwo.getX();
+    bpy = playerTwo.getY();
+    agpx = goalieOne.getX();
+    agpy = goalieOne.getY();
+    bgpx = goalieTwo.getX();
+    bgpy = goalieTwo.getY();
+    ppx = puck.getX();
+    ppy = puck.getY();
+}
+
+function centerText(txt, button){
+    txt.setPosition(button.getX() + button.getWidth()/2 - txt.getWidth()/2, button.getY() + button.getHeight()/2 + txt.getHeight()/4);
+}
+
+function resetGameAndOpenMenu(){
+    menu = true;
+    game = false;
+    
+    teamOneScore = 0;
+    teamTwoScore = 0;
+    teamOneShots = 0;
+    teamTwoShots = 0;
+    teamOneSaves = 0;
+    teamTwoSaves = 0;
+    teamOneHits = 0;
+    teamTwoHits = 0;
+    teamOneFaceoffs = 0;
+    teamTwoFaceoffs = 0;
+    teamOnePossession = 0;
+    teamTwoPossession = 0;
+    aPosts = 0;
+    bPosts = 0;
+    
+    period = 1;
+    periodString = "1st";
+
+    gameOver = false;
+    winner = 0;
+
+    clockFrameCount = 0;
+    mins = 20;
+    seconds = 0;
+
+    playersCanMove = false;
+    startTimer = true;
+    keepDoingTimer = false;
+    dropPuck = false;
+    preFaceoffTimerOver = false;
+    timerStartFrame = 0;
+    faceoffTimer = 0;
+
+    doFaceoff = false;
+    inPlay = false;
+
+    teamOneScored = false;
+    teamTwoScored = false;
+    goalTimer = 0;
+
+    messageInt = 0;
+    lastMessageDisplayed = 0;
+    firstCharacter = 0;
+    lastCharacter = 0;
+    messagesTimerI = 0;
+    messageToDisplay = "";
+
+    messageTxtRef.setText("");
+    messageTxt.setText("");
+    
+    potentialMessages = [];
+    addPotentialMessages();
+    newMessage = false;
+
+    endOfPeriod = false;
+    endOfPeriodTimer = 0;
+    intermissionMessage = 0;
+    iRan = 0;
+    
+    checkForFaceoffWin = true;
+    skippingIntermission = false;
+    mouthOpen = false;
+    nextMouthFrame = 0;
+
+    ax = 0;
+    ay = 0;
+    bx = 0;
+    by = 0;
+    aax = 0;
+    aay = 0;
+    bbx = 0;
+    bby = 0;
+    aTarX = 0;
+    aTarY = 0;
+    bTarX = 0;
+    bTarY = 0;
+    aLastTarX = 0;
+    aLastTarY = 0;
+    bLastTarX = 0;
+    bLastTarY = 0;
+
+    aSlowingX = 0;
+    aSlowingY = 0;
+    bSlowingX = 0;
+    bSlowingY = 0;
+
+    bumped = false;
+    aPuck = false;
+    bPuck = false;
+    aCanHave = true;
+    bCanHave = true;
+    aCanHaveFrame = 0;
+    bCanHaveFrame = 0;
+
+    aSpeed = speedDenominator;
+    bSpeed = speedDenominator;
+    aHitting = 4;
+    bHitting = 4;
+
+    aShotPuck = false;
+    bShotPuck = false;
+    aShotPuckFrame = -40;
+    bShotPuckFrame = -40;
+
+    agtx = 0;
+    agty = 0;
+    bgtx = 0;
+    bgty = 0;
+
+    agx = 0;
+    agy = 0;
+    bgx = 0;
+    bgy = 0;
+
+    agTarX = 0;
+    agTarY = 0;
+    bgTarX = 0;
+    bgTarY = 0;
+
+    puckCloseToGoalieA = false;
+    puckCloseToGoalieB = false;
+    goalieAsave = false;
+    goalieBsave = false;
+    goalieASaveAttemptFrame = 0;
+    goalieBSaveAttemptFrame = 0;
+
+    goalieAoops = -45;
+    goalieBoops = -45;
+    goalieALastPush = 0;
+    goalieBLastPush = 0;
+
+    lastModifiedFanExcitement = 0;
+
+
+    ppx = 0;
+    ppy = 0;
+    lppx = 0;
+    lppy = 0;
+    px = 0;
+    py = 0;
+
+    collidedWithPostFrame = 0;
+    collisionDetectionAttempt = 1;
+
+    shootPuck = false;
+    collidedWithNet = false;
+    puckCloseToPost = false;
+
+    aChargingShot = false;
+    bChargingShot = false;
+
+    puckOnFire = false;
+    puckWasOnFire = false;
+    fireIsAdded = false;
+
+    debugActive = false;
+
+
+    rate = 0;
+    dif = 0;
+    dis = 0;
+    movX = 0;
+    movY = 0;
+    
+    remove(rect);
+    remove(winnerText);
+    remove(back);
+    remove(ice);
+    remove(puck);
+    puck.setRadius(20);
+    puck.setPosition(arenaCenterX, arenaCenterY);
+    playerOne.setPosition(arenaCenterX - 60, arenaCenterY);
+    playerTwo.setPosition(arenaCenterX + 60, arenaCenterY);
+    for(var i = 0; i < arenaStuff.length; i++){
+        remove(arenaStuff[i]);
+    }
+    for(var i = 0; i < snowBuildup.length; i++){
+        remove(snowBuildup[i]);
+    }
+    snowBuildup = [];
+    snowVelX = [];
+    snowVelY = [];
+    snowLife = [];
+    remove(goalText);
+    
+}
+
+class Player {
+  constructor(size, color) {
+    this.size = size;
+    this.color = color;
+  }
+}
+
+
+                                                                                                                                                                                                                                                                                
+
+
+
+//redo acceleration/turning/stopping/gliding
+//rework collisions people launch off each other sometimes
+//boink players w/powerful slapshot
+//spray goalie to pause them for a second
+//zamboni
+
+
+    if (typeof start === 'function') {
+        start();
+    }
+};
+</script>
+
+</body>
+</html>
