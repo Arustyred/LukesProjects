@@ -104,6 +104,10 @@ int main()
 
 	//clear memory
 	cleanup(tests);
+
+	//added this so that the exe doesnt immediately close after finishing
+	cin.get();
+	return 0;
 }
 
 void astar(State initial, State& goal) {
