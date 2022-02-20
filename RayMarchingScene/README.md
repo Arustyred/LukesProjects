@@ -8,4 +8,4 @@ and the process is repeated until the distance function returns a value less tha
 an object and the color for that pixel can then be determined.
 
 This program produces a scene that looks like the following image.
-![Scene](/Images/scene.png)
+![Scene](Images/Scene.png)
