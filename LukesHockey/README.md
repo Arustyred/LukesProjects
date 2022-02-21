@@ -3,6 +3,8 @@ and two computer controlled goalies. The goal is to score more goals than your o
 
 To play, download the html file and open it using chrome or another web browser
 
+![Hockey](/Hockey.png)
+
 Mechanics:
 
 Before the game starts, each team can choose their name and color
